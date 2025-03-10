@@ -3,6 +3,7 @@ let
   fetchScript = ''
     #!/bin/bash
     # Configuration
+    cd /home/admin/Magi || exit
 
     # Change directory to your repository
 
@@ -35,7 +36,6 @@ in
     serviceConfig = {
       Type = "oneshot";
       User = "admin";
-      WorkingDirectory = "/home/admin/Magi";
     };
     script = fetchScript;
     confinement = {
