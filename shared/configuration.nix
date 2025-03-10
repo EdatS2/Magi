@@ -37,6 +37,7 @@ in
     btop
     dig # network toubleshooting
     fastfetch
+    cowsay
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
