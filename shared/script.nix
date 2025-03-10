@@ -41,7 +41,7 @@ in
     };
     script = fetchScript;
   };
-  systemd.timers."run-CI/CD" = {
+  systemd.timers."run-CICD" = {
     wantedBy = [ "timers.target" ];
     enable = true;
     timerConfig = {
