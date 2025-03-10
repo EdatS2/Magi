@@ -37,7 +37,6 @@ in
     btop
     dig # network toubleshooting
     fastfetch
-    cowsay
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -91,7 +90,8 @@ in
     nix-direnv.enable = true;
   };
   networking = {
-    extraHosts = "${kubeMasterIP} ${kubeMasterHostname}";
+    extraHosts = ''${kubeMasterIP} ${kubeMasterHostname}
+    '';
     dhcpcd.enable = true;
     # interfaces.ens18.ipv4.addresses = [{ address = "192.168.88.30"; prefixLength = 28; }];
     vlans = {
@@ -102,18 +102,18 @@ in
     firewall.enable = false;
     nameservers = [ kubeGateway ];
   };
-  # services.kubernetes = {
-  #   # disabled kubernetes to focus on DNS and networking first
-  #   roles = [ "master" "node" ];
-  #   masterAddress = kubeMasterHostname;
-  #   apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
-  #   easyCerts = true;
-  #   apiserver = {
-  #     securePort = kubeMasterAPIServerPort;
-  #     advertiseAddress = kubeMasterIP;
-  #   };
-  #   addons.dns.enable = true;
-  # };
+  services.kubernetes = {
+    # disabled kubernetes to focus on DNS and networking first
+    roles = [ "master" "node" ];
+    masterAddress = kubeMasterHostname;
+    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
+    easyCerts = true;
+    apiserver = {
+      securePort = kubeMasterAPIServerPort;
+      advertiseAddress = kubeMasterIP;
+    };
+    addons.dns.enable = false;
+  };
   virtualisation.docker.enable = true;
   users.users.admin = {
     isNormalUser = true;
