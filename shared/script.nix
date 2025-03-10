@@ -3,7 +3,6 @@ let
   fetchScript = ''
     #!/bin/bash
     # Configuration
-    cd /home/admin/Magi || exit
 
     # Change directory to your repository
 
@@ -39,7 +38,7 @@ in
     };
     script = fetchScript;
     confinement = {
-        enable = true;
+        enable = false;
         packages = with pkgs; [
             git
             openssh
