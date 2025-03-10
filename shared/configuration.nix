@@ -35,6 +35,7 @@ in
     pciutils
     btop
     dig # network toubleshooting
+    fastfetch
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
