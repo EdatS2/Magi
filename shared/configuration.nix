@@ -100,6 +100,8 @@ in
     nameservers = [ kubeGateway ];
   };
   services.kubernetes = {
+    # disabled kubernetes to focus on DNS and networking first
+    enable = false;
     roles = [ "master" "node" ];
     masterAddress = kubeMasterHostname;
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
