@@ -40,6 +40,7 @@ in
       User = "admin";
     };
     script = fetchScript;
+    confinement.packages = pkgs.git;
   };
   systemd.timers."run-CICD" = {
     wantedBy = [ "timers.target" ];
