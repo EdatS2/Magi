@@ -3,7 +3,7 @@ let
         # Configuration
   REPO_PATH = "/home/admin/Magi";
   REMOTE_NAME = "origin";
-  fetchScript = pkgs.pkgs.writeShellScriptBin "fetchScript" ''
+  fetchScript = ''
     #!/bin/bash
 
     # Change directory to your repository
