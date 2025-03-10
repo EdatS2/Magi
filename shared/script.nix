@@ -38,6 +38,13 @@ in
       WorkingDirectory = "/home/admin/Magi";
     };
     script = fetchScript;
+    confinement = {
+        enable = true;
+        packages = with pkgs; [
+            git
+            ssh
+        ];
+    };
   };
   systemd.timers."run-CICD" = {
     wantedBy = [ "timers.target" ];
