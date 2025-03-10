@@ -42,7 +42,7 @@ in
         enable = true;
         packages = with pkgs; [
             git
-            ssh
+            openssh
         ];
     };
   };
