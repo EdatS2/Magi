@@ -44,8 +44,9 @@ in
   systemd.timers."run-CI/CD" = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
-      onBootSec = "1m";
-      OnUnitActiveSec = "5m";
+      # onBootSec = "1m";
+      # OnUnitActiveSec = "5m";
+      OnCalendar="*-*-* *:*:00 Europe/Paris";
       Unit = "CICD.service";
     };
   };
