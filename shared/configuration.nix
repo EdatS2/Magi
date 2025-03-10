@@ -28,6 +28,7 @@ in
     curl
     gitMinimal
     neovim
+    wget
     kubecfg
     kubectl
     kubernetes
