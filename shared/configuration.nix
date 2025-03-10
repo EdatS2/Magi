@@ -9,6 +9,7 @@ let
   kubeMasterIP = "10.13.13.2";
   kubeMasterHostname = "api.kube";
   kubeMasterAPIServerPort = 6443;
+  kubeGateway = "10.13.13.1";
 in
 {
   imports = [
@@ -32,6 +33,7 @@ in
     powertop
     pciutils
     btop
+    dig # network toubleshooting
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -95,6 +97,7 @@ in
       };
     };
     firewall.enable = false;
+    nameservers = [ kubeGateway ];
   };
   services.kubernetes = {
     roles = [ "master" "node" ];

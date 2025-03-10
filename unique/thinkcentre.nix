@@ -15,4 +15,8 @@
       rebuild =
         "sudo nixos-rebuild --flake ~/Magi#balthazar switch";
    };
+   environment.systemPackages = with pkgs; [
+        libva-utils
+   ];
+   hardware.graphics.enable = true;
 }
