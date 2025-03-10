@@ -35,6 +35,7 @@ in
     serviceConfig = {
       Type = "oneshot";
       User = "admin";
+      WorkingDirectory = "/home/admin/Magi";
     };
     script = fetchScript;
     confinement = {
