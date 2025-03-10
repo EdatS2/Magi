@@ -118,7 +118,7 @@ in
   users.users.admin = {
     isNormalUser = true;
     hashedPassword = "$6$mtwy4csazokFBG0W$JRlXuJlVToMHFDEshNZeKbooow0lV9xPqZJuWsdkRUT3dQtbpShB82IUgunO/g6DWsLHDbzXv.fJExJXgvrzq0";
-    extraGroups = ["wheel"];
+    extraGroups = ["wheel" "docker" "kubernetes"];
     shell = pkgs.zsh;
   };
 
