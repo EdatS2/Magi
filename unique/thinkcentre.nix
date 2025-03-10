@@ -6,6 +6,8 @@ pkgs
    networking = {
        hostName = "balthazar"; 
        vlans.kubernetes.interface = "eno1"; 
+       interfaces.kubernetes.ipv4.addresses = [{ address = "10.13.13.3";
+       prefixLength = 24; }];       
         # Kijk in de installer welke interface het gaat worden en stel dat dan
         # goed in.
    };
