@@ -15,6 +15,7 @@ in
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
+    ./script.nix
   ];
   boot.loader.grub = {
     efiSupport = true;
@@ -37,7 +38,6 @@ in
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
   programs.zsh = {
     enable = true;
     enableCompletion = true;

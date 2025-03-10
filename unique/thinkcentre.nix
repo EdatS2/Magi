@@ -1,7 +1,5 @@
-{ modulesPath
-, lib
-, pkgs
-, config
+{ 
+pkgs
 , ...
 }:
 {
