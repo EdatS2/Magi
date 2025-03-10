@@ -3,15 +3,14 @@ let
   fetchScript = ''
     #!/bin/bash
     # Configuration
-    REMOTE_NAME = "origin";
 
     # Change directory to your repository
 
     # Fetch updates from the remote repository without changing local files
-    ${pkgs.git}/bin/git fetch "$REMOTE_NAME"
+    ${pkgs.git}/bin/git fetch $0
 
     # Check if there are new commits in the main branch (modify 'main' as needed)
-    NEW_COMMITS=$(${pkgs.git}/bin/git log --oneline "HEAD..$REMOTE_NAME/main" | wc -l)
+    NEW_COMMITS=$(${pkgs.git}/bin/git log --oneline "HEAD..%0/main" | wc -l)
 
     if [ "$NEW_COMMITS" -gt 0 ]; then
         echo "There are new commits. Pulling changes..."
@@ -38,6 +37,7 @@ in
       User = "admin";
       WorkingDirectory = "/home/admin/Magi";
     };
+    scriptArgs = "origin";
     script = fetchScript;
   };
   systemd.timers."run-CICD" = {
