@@ -102,18 +102,18 @@ in
     firewall.enable = false;
     nameservers = [ kubeGateway ];
   };
-  # services.kubernetes = {
-  #   # disabled kubernetes to focus on DNS and networking first
-  #   roles = [ "master" "node" ];
-  #   masterAddress = kubeMasterHostname;
-  #   apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
-  #   easyCerts = true;
-  #   apiserver = {
-  #     securePort = kubeMasterAPIServerPort;
-  #     advertiseAddress = kubeMasterIP;
-  #   };
-  #   addons.dns.enable = false;
-  # };
+  services.kubernetes = {
+    # disabled kubernetes to focus on DNS and networking first
+    roles = [ "master" "node" ];
+    masterAddress = kubeMasterHostname;
+    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
+    easyCerts = true;
+    apiserver = {
+      securePort = kubeMasterAPIServerPort;
+      advertiseAddress = kubeMasterIP;
+    };
+    addons.dns.enable = false;
+  };
   virtualisation.docker.enable = true;
   users.users.admin = {
     isNormalUser = true;
