@@ -92,7 +92,7 @@
             }];
           }];
           hostAliases = [{
-            hostnames = [ "kubernetes" ];
+            hostnames = [ "balthazar" ];
             ip = "127.0.0.1";
           }];
           hostNetwork = true;
