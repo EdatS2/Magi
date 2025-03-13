@@ -8,7 +8,7 @@
     # this converts json to nix
     # https://onlineyamltools.com/convert-yaml-to-json
     # "kubernetes/manifests/kube-vip.yaml".source = (pkgs.formats.yaml { }).generate "kube-config-manifest"
-    services.kubernetes.kubelet.manifests = {
+    services.kubernetes.kubelet.manifests.kube-vip = {
         apiVersion = "v1";
         kind = "Pod";
         metadata = {
