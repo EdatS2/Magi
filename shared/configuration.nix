@@ -42,6 +42,9 @@ in
     btop
     dig # network toubleshooting
     fastfetch
+    openssl
+    cfssl
+    certmgr
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -122,7 +125,7 @@ in
       securePort = kubeMasterAPIServerPort;
       advertiseAddress = kubeMasterIP;
     };
-    addons.dns.enable = false;
+    addons.dns.enable = true;
   };
   virtualisation.docker.enable = true;
   users.users.admin = {
