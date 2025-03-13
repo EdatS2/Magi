@@ -77,7 +77,7 @@
                 name = "address";
                 value = "10.13.13.10";
               }];
-            image = "ghcr.io/kube-vip/kube-vip:v0.3.9";
+            image = "ghcr.io/kube-vip/kube-vip:v0.8.9";
             imagePullPolicy = "Always";
             name = "kube-vip";
             resources = { };
