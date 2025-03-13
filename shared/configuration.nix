@@ -8,7 +8,7 @@
 let
   kubeMasterIP = "10.13.13.3";
   kubeMasterHostname = "balthazar";
-  kubeMasterAPIServerPort = 6443;
+  kubeMasterAPIServerPort = 6444;
   kubeGateway = "10.13.13.1";
   kubeNodes = [ "balthazar"
                 "kube1"
