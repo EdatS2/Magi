@@ -14,7 +14,7 @@
         metadata = {
           creationTimestamp = null;
           name = "kube-vip";
-          namespace = "kube-system";
+          namespace = "default";
         };
         spec = {
           containers = [{
