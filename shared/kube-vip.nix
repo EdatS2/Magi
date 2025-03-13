@@ -14,7 +14,7 @@
         metadata = {
           creationTimestamp = null;
           name = "kube-vip";
-          namespace = "default";
+          namespace = "kube-system";
         };
         spec = {
           containers = [{
@@ -53,7 +53,7 @@
               }
               {
                 name = "bgp_routerid";
-                value = "192.168.0.2";
+                value = "10.13.13.1";
               }
               {
                 name = "bgp_as";
@@ -71,11 +71,11 @@
               }
               {
                 name = "bgp_peers";
-                value = "192.168.0.10:65000::false,192.168.0.11:65000::false";
+                value = "10.13.13.2:65000::false,10.13.13.3:65000::false";
               }
               {
                 name = "address";
-                value = "192.168.0.40";
+                value = "10.13.13.10";
               }];
             image = "ghcr.io/kube-vip/kube-vip:v0.3.9";
             imagePullPolicy = "Always";
