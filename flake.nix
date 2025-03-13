@@ -39,13 +39,14 @@
             { nix.nixPath = [ "nixpkgs=${nixpkgs}" ]; }
           ];
         };
-        virtual = nixpkgs.lib.nixosSystem {
+        melchior-kube = nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
             disko.nixosModules.disko
             ./shared/configuration.nix
             ./hardware-configuration.nix
             ./shared/disk-config-virtual.nix
+            ./unique/melchior.nix
             sops-nix.nixosModules.sops
             # This line will populate NIX_PATH
             { nix.nixPath = [ "nixpkgs=${nixpkgs}" ]; }

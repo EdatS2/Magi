@@ -10,12 +10,17 @@ let
   kubeMasterHostname = "balthazar";
   kubeMasterAPIServerPort = 6443;
   kubeGateway = "10.13.13.1";
+  kubeNodes = [ "balthazar"
+                "kube1"
+                "kube2"
+                ];
 in
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
     ./script.nix
+    ./kube-vip.nix
   ];
   boot.loader.grub = {
     efiSupport = true;
@@ -108,6 +113,11 @@ in
     masterAddress = kubeMasterHostname;
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
     easyCerts = true;
+    pki = {
+        enable = true;
+        # todo add extra san
+        cfsslAPIExtraSANs = kubeNodes;
+    };
     apiserver = {
       securePort = kubeMasterAPIServerPort;
       advertiseAddress = kubeMasterIP;
