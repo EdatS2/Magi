@@ -3,12 +3,12 @@
   environment.systemPackages = with pkgs; [
 
   ];
-  environment.etc = {
+  # environment.etc = {
     # nix-instantiate --eval -E 'builtins.fromJSON (builtins.readFile ./throwaway.json)' 
     # this converts json to nix
     # https://onlineyamltools.com/convert-yaml-to-json
-    "kubernetes/manifests/kube-vip.yaml".source = (pkgs.formats.yaml { }).generate "kube-config-manifest"
-      {
+    # "kubernetes/manifests/kube-vip.yaml".source = (pkgs.formats.yaml { }).generate "kube-config-manifest"
+    services.kubernetes.kubelet.manifests = {
         apiVersion = "v1";
         kind = "Pod";
         metadata = {
