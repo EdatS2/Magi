@@ -87,7 +87,7 @@
               };
             };
             volumeMounts = [{
-              mountPath = "/etc/kubernetes/admin.conf";
+              mountPath = "/etc/kubernetes/cluster-admin.kubeconfig";
               name = "kubeconfig";
             }];
           }];
@@ -98,7 +98,7 @@
           hostNetwork = true;
           volumes = [{
             hostPath = {
-              path = "/etc/kubernetes/admin.conf";
+              path = "/etc/kubernetes/cluster-admin.kubeconfig";
             };
             name = "kubeconfig";
           }];
