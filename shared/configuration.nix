@@ -13,6 +13,8 @@ let
   kubeNodes = [ "balthazar"
                 "melchior-kube"
                 "gaspard-kube"
+                "10.13.13.2"
+                "10.13.13.4"
                 ];
 in
 {
