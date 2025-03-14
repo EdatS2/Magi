@@ -132,6 +132,7 @@ in
     apiserver = {
       securePort = kubeMasterAPIServerPort;
       advertiseAddress = kubeMasterIP;
+      etcd.servers = ["10.13.13.2" "10.13.13.3" "10.13.13.4"];
     };
     addons.dns.enable = true;
     kubelet.nodeIp = (builtins.elemAt
