@@ -134,6 +134,8 @@ in
       advertiseAddress = kubeMasterIP;
     };
     addons.dns.enable = true;
+    kubelet.nodeIp = (builtins.elemAt
+    config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
   };
   virtualisation.docker.enable = true;
   users.users.admin = {
