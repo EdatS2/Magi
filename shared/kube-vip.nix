@@ -87,7 +87,7 @@
           }
           {
             name = "bgp_peers";
-            value = "192.168.0.10:65000::false,192.168.0.11:65000::false";
+            value = "10.13.13.2:65000::false,10.13.13.4:65000::false";
           }
           {
             name = "address";
