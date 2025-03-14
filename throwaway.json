@@ -22,12 +22,24 @@
             "value": "6443"
           },
           {
+            "name": "vip_nodename",
+            "valueFrom": {
+              "fieldRef": {
+                "fieldPath": "spec.nodeName"
+              }
+            }
+          },
+          {
             "name": "vip_interface",
             "value": "lo"
           },
           {
             "name": "vip_cidr",
             "value": "32"
+          },
+          {
+            "name": "dns_mode",
+            "value": "first"
           },
           {
             "name": "cp_enable",
@@ -38,8 +50,12 @@
             "value": "kube-system"
           },
           {
-            "name": "vip_ddns",
-            "value": "false"
+            "name": "svc_enable",
+            "value": "true"
+          },
+          {
+            "name": "svc_leasename",
+            "value": "plndr-svcs-lock"
           },
           {
             "name": "bgp_enable",
@@ -69,19 +85,22 @@
           },
           {
             "name": "address",
-            "value": "192.168.0.40"
+            "value": "10.13.13.10"
+          },
+          {
+            "name": "prometheus_server",
+            "value": ":2112"
           }
         ],
-        "image": "ghcr.io/kube-vip/kube-vip:v0.3.9",
-        "imagePullPolicy": "Always",
+        "image": "ghcr.io/kube-vip/kube-vip:v0.8.9",
+        "imagePullPolicy": "IfNotPresent",
         "name": "kube-vip",
         "resources": {},
         "securityContext": {
           "capabilities": {
             "add": [
               "NET_ADMIN",
-              "NET_RAW",
-              "SYS_TIME"
+              "NET_RAW"
             ]
           }
         },
