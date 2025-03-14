@@ -1,4 +1,14 @@
 { pkgs, config, ... }:
+let
+    peers = ["10.13.13.1"
+             "10.13.13.2"
+             "10.13.13.3"
+             "10.13.13.4"];
+    hostIP = (builtins.elemAt
+            config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
+    bgpPeers = builtins.concatStringsSep "," (map (p: "${p}:65000::false")
+    (builtins.filter (p: p!= hostIP) peers));
+in
 {
   environment.systemPackages = with pkgs; [
 
@@ -8,6 +18,7 @@
   # this converts json to nix
   # https://onlineyamltools.com/convert-yaml-to-json
   # "kubernetes/manifests/kube-vip.yaml".source = (pkgs.formats.yaml { }).generate "kube-config-manifest"
+
   services.kubernetes.kubelet.manifests.kube-vip = {
     apiVersion = "v1";
     kind = "Pod";
@@ -69,8 +80,7 @@
           }
           {
             name = "bgp_routerid";
-            value = (builtins.elemAt
-            config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
+            value = hostIP;
           }
           {
             name = "bgp_as";
@@ -88,7 +98,7 @@
           }
           {
             name = "bgp_peers";
-            value = "10.13.13.1:65000::false,10.13.13.4:65000::false";
+            value = bgpPeers;
           }
           {
             name = "address";
