@@ -17,6 +17,11 @@ let
                 "10.13.13.4"
                 "10.13.13.10"
                 ];
+  kubeNodesIP = ["10.13.13.2" "10.13.13.3" "10.13.13.4"];
+  etcdUrls_clients = builtins.concatLists [( map (p: "https://${p}:2379")
+  kubeNodesIP) [ "https://127.0.0.1:2379" ]];
+  etcdUrls_peer = builtins.concatLists [( map (p: "https://${p}:2380")
+  kubeNodesIP) [ "https://127.0.0.1:2380" ]];
 in
 {
   imports = [
@@ -132,12 +137,20 @@ in
     apiserver = {
       securePort = kubeMasterAPIServerPort;
       advertiseAddress = kubeMasterIP;
-      etcd.servers = ["10.13.13.2" "10.13.13.3" "10.13.13.4"];
+      # just need ip's here
+      etcd.servers = kubeNodesIP;
     };
     addons.dns.enable = true;
     kubelet.nodeIp = (builtins.elemAt
     config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
   };
+  services.etcd = {
+# generator expressions from kubeNodesIP
+    listenPeerUrls = etcdUrls_peer;
+    listenClientUrls = etcdUrls_clients;
+    advertiseClientUrls = etcdUrls_clients;
+  };
+
   virtualisation.docker.enable = true;
   users.users.admin = {
     isNormalUser = true;
