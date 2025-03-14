@@ -41,7 +41,7 @@
           }
           {
             name = "vip_cidr";
-            value = "32";
+            value = "24";
           }
           {
             name = "dns_mode";
@@ -69,7 +69,7 @@
           }
           {
             name = "bgp_routerid";
-            value = "192.168.0.2";
+            value = "10.13.13.1";
           }
           {
             name = "bgp_as";
@@ -112,7 +112,7 @@
         }];
       }];
       hostAliases = [{
-        hostnames = [ "kubernetes" ];
+        hostnames = [ "balthazar" ];
         ip = "127.0.0.1";
       }];
       hostNetwork = true;
