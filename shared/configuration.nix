@@ -118,16 +118,18 @@ in
     roles = [ "master" "node" ];
     masterAddress = kubeMasterHostname;
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
-    easyCerts = true;
-    pki = {
-        enable = true;
-        # todo add extra san
-        cfsslAPIExtraSANs = kubeNodes;
-    };
-    apiserver = {
-      securePort = kubeMasterAPIServerPort;
-      advertiseAddress = kubeMasterIP;
-    };
+    # easyCerts = true;
+    # pki = {
+    #     enable = true;
+    #     # todo add extra san
+    #     cfsslAPIExtraSANs = kubeNodes;
+    # };
+    # apiserver = {
+    #   securePort = kubeMasterAPIServerPort;
+    #   advertiseAddress = kubeMasterIP;
+    # };
+    kubelet.kubeconfig.server = "https://${kubeMasterHostname}:${toString
+    kubeMasterAPIServerPort}";
     addons.dns.enable = true;
   };
   virtualisation.docker.enable = true;
