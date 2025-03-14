@@ -19,11 +19,8 @@ let
     "10.13.13.10"
   ];
   kubeNodesIP = [ "10.13.13.2" "10.13.13.3" "10.13.13.4" ];
-  apiEtcdServers = builtins.concatLists [
-    (map (p: "https://${p}:2379")
-      kubeNodesIP)
-    [ "https://127.0.0.1:2379" ]
-  ];
+  apiEtcdServers = (map (p: "https://${p}:2379")
+      kubeNodesIP);
   hostIP = (builtins.elemAt
     config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
 
