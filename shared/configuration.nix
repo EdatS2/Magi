@@ -48,7 +48,12 @@ in
     cfssl
     certmgr
     jq
+    cri-tools
+    ethtool
+    conntrack-tools
+    iptables
   ];
+
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   programs.zsh = {
