@@ -69,7 +69,7 @@
           }
           {
             name = "bgp_routerid";
-            value = "10.13.13.1";
+            value = "10.13.13.3";
           }
           {
             name = "bgp_as";
@@ -87,7 +87,7 @@
           }
           {
             name = "bgp_peers";
-            value = "10.13.13.2:65000::false,10.13.13.4:65000::false";
+            value = "10.13.13.1:65000::false,10.13.13.4:65000::false";
           }
           {
             name = "address";
