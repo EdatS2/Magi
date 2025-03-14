@@ -6,13 +6,13 @@
 , ...
 }:
 let
-  kubeMasterIP = "10.13.13.3";
+  kubeMasterIP = "10.13.13.10";
   kubeMasterHostname = "balthazar";
   kubeMasterAPIServerPort = 6443;
   kubeGateway = "10.13.13.1";
   kubeNodes = [ "balthazar"
-                "kube1"
-                "kube2"
+                "melchior-kube"
+                "gaspard-kube"
                 ];
 in
 {
