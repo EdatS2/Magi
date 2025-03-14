@@ -45,6 +45,7 @@ in
     openssl
     cfssl
     certmgr
+    jq
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
