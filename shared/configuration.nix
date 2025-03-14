@@ -6,7 +6,7 @@
 , ...
 }:
 let
-  kubeMasterIP = "10.13.13.2";
+  kubeMasterIP = "10.13.13.3";
   kubeMasterHostname = "balthazar";
   kubeMasterAPIServerPort = 6443;
   kubeGateway = "10.13.13.1";
