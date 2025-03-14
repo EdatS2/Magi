@@ -138,34 +138,34 @@ in
     firewall.enable = false;
     nameservers = [ kubeGateway ];
   };
-  # services.kubernetes = {
-  #   # disabled kubernetes to focus on DNS and networking first
-  #   roles = [ "master" "node" ];
-  #   masterAddress = kubeMasterHostname;
-  #   apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
-  #   easyCerts = true;
-  #   pki = {
-  #     enable = true;
-  #     # todo add extra san
-  #     cfsslAPIExtraSANs = kubeNodes;
-  #   };
-  #   apiserver = {
-  #     securePort = kubeMasterAPIServerPort;
-  #     advertiseAddress = kubeMasterIP;
-  #     # just need ip's here
-  #     etcd.servers = apiEtcdServers;
-  #   };
-  #   addons.dns.enable = true;
-  #   kubelet.nodeIp = (builtins.elemAt
-  #     config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
-  # };
-  # services.etcd = {
-  #   # generator expressions from kubeNodesIP
-  #   listenPeerUrls = etcdUrlsPeer;
-  #   listenClientUrls = etcdUrlsClients;
-  #   advertiseClientUrls = etcdUrlsClients;
-  # };
-  #
+  services.kubernetes = {
+    # disabled kubernetes to focus on DNS and networking first
+    roles = [ "master" "node" ];
+    masterAddress = kubeMasterHostname;
+    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
+    easyCerts = true;
+    pki = {
+      enable = true;
+      # todo add extra san
+      cfsslAPIExtraSANs = kubeNodes;
+    };
+    apiserver = {
+      securePort = kubeMasterAPIServerPort;
+      advertiseAddress = kubeMasterIP;
+      # just need ip's here
+      etcd.servers = apiEtcdServers;
+    };
+    addons.dns.enable = true;
+    kubelet.nodeIp = (builtins.elemAt
+      config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
+  };
+  services.etcd = {
+    # generator expressions from kubeNodesIP
+    listenPeerUrls = etcdUrlsPeer;
+    listenClientUrls = etcdUrlsClients;
+    advertiseClientUrls = etcdUrlsClients;
+  };
+
   virtualisation.docker.enable = true;
   users.users.admin = {
     isNormalUser = true;
