@@ -118,7 +118,7 @@ in
     roles = [ "node" ];
     masterAddress = kubeMasterHostname;
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
-    # easyCerts = true;
+    easyCerts = true;
     # pki = {
     #     enable = true;
     #     # todo add extra san
