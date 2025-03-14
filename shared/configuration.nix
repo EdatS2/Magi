@@ -135,6 +135,8 @@ in
     # };
     kubelet.kubeconfig.server = "https://${kubeMasterHostname}:${toString
     kubeMasterAPIServerPort}";
+    kubelet.nodeIp = (builtins.elemAt
+    config.networking.interfaces.kubernetes.ipv4.addresses 0).address; 
     addons.dns.enable = true;
   };
   virtualisation.docker.enable = true;
