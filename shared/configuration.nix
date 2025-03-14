@@ -48,12 +48,7 @@ in
     cfssl
     certmgr
     jq
-    cri-tools
-    ethtool
-    conntrack-tools
-    iptables
   ];
-
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   programs.zsh = {
@@ -120,23 +115,19 @@ in
   };
   services.kubernetes = {
     # disabled kubernetes to focus on DNS and networking first
-    roles = [ "node" ];
+    roles = [ "master" "node" ];
     masterAddress = kubeMasterHostname;
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
     easyCerts = true;
-    # pki = {
-    #     enable = true;
-    #     # todo add extra san
-    #     cfsslAPIExtraSANs = kubeNodes;
-    # };
-    # apiserver = {
-    #   securePort = kubeMasterAPIServerPort;
-    #   advertiseAddress = kubeMasterIP;
-    # };
-    kubelet.kubeconfig.server = "https://${kubeMasterHostname}:${toString
-    kubeMasterAPIServerPort}";
-    kubelet.nodeIp = (builtins.elemAt
-    config.networking.interfaces.kubernetes.ipv4.addresses 0).address; 
+    pki = {
+        enable = true;
+        # todo add extra san
+        cfsslAPIExtraSANs = kubeNodes;
+    };
+    apiserver = {
+      securePort = kubeMasterAPIServerPort;
+      advertiseAddress = kubeMasterIP;
+    };
     addons.dns.enable = true;
   };
   virtualisation.docker.enable = true;
