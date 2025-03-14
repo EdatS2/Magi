@@ -109,7 +109,12 @@
         volumeMounts = [{
           mountPath = "/etc/kubernetes/admin.conf";
           name = "kubeconfig";
-        }];
+        }
+          {
+            mountPath = "/var/lib/kubernetes/secrets";
+            name = "certs";
+          }];
+
       }];
       hostAliases = [{
         hostnames = [ "balthazar" ];
@@ -121,7 +126,13 @@
           path = "/etc/kubernetes/cluster-admin.kubeconfig";
         };
         name = "kubeconfig";
-      }];
+      }
+        {
+          hostPath = {
+            path = "/var/lib/kubernetes/secrets";
+          };
+          name = "certs";
+        }];
     };
     status = { };
   };
