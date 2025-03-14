@@ -23,13 +23,13 @@ let
     config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
 
   etcdUrlsClients = builtins.concatLists [
-    [(map (p: "https://${p}:2379")
-      hostIP)]
+    (map (p: "https://${p}:2379")
+      [hostIP])
     [ "https://127.0.0.1:2379" ]
   ];
   etcdUrlsPeer = builtins.concatLists [
-    [(map (p: "https://${p}:2380")
-      hostIP)]
+    (map (p: "https://${p}:2380")
+      [hostIP])
     [ "https://127.0.0.1:2380" ]
   ];
 in
