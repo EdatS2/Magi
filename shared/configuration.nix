@@ -10,18 +10,28 @@ let
   kubeMasterHostname = "balthazar";
   kubeMasterAPIServerPort = 6443;
   kubeGateway = "10.13.13.1";
-  kubeNodes = [ "balthazar"
-                "melchior-kube"
-                "gaspard-kube"
-                "10.13.13.2"
-                "10.13.13.4"
-                "10.13.13.10"
-                ];
-  kubeNodesIP = ["10.13.13.2" "10.13.13.3" "10.13.13.4"];
-  etcdUrls_clients = builtins.concatLists [( map (p: "https://${p}:2379")
-  kubeNodesIP) [ "https://127.0.0.1:2379" ]];
-  etcdUrls_peer = builtins.concatLists [( map (p: "https://${p}:2380")
-  kubeNodesIP) [ "https://127.0.0.1:2380" ]];
+  kubeNodes = [
+    "balthazar"
+    "melchior-kube"
+    "gaspard-kube"
+    "10.13.13.2"
+    "10.13.13.4"
+    "10.13.13.10"
+  ];
+  kubeNodesIP = [ "10.13.13.2" "10.13.13.3" "10.13.13.4" ];
+  hostIP = (builtins.elemAt
+    config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
+
+  etcdUrlsClients = builtins.concatLists [
+    (map (p: "https://${p}:2379")
+      hostIP)
+    [ "https://127.0.0.1:2379" ]
+  ];
+  etcdUrlsPeer = builtins.concatLists [
+    (map (p: "https://${p}:2380")
+      hostIP)
+    [ "https://127.0.0.1:2380" ]
+  ];
 in
 {
   imports = [
@@ -130,9 +140,9 @@ in
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
     easyCerts = true;
     pki = {
-        enable = true;
-        # todo add extra san
-        cfsslAPIExtraSANs = kubeNodes;
+      enable = true;
+      # todo add extra san
+      cfsslAPIExtraSANs = kubeNodes;
     };
     apiserver = {
       securePort = kubeMasterAPIServerPort;
@@ -142,20 +152,20 @@ in
     };
     addons.dns.enable = true;
     kubelet.nodeIp = (builtins.elemAt
-    config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
+      config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
   };
   services.etcd = {
-# generator expressions from kubeNodesIP
-    listenPeerUrls = etcdUrls_peer;
-    listenClientUrls = etcdUrls_clients;
-    advertiseClientUrls = etcdUrls_clients;
+    # generator expressions from kubeNodesIP
+    listenPeerUrls = etcdUrlsPeer;
+    listenClientUrls = etcdUrlsClients;
+    advertiseClientUrls = etcdUrlsClients;
   };
 
   virtualisation.docker.enable = true;
   users.users.admin = {
     isNormalUser = true;
     hashedPassword = "$6$mtwy4csazokFBG0W$JRlXuJlVToMHFDEshNZeKbooow0lV9xPqZJuWsdkRUT3dQtbpShB82IUgunO/g6DWsLHDbzXv.fJExJXgvrzq0";
-    extraGroups = ["wheel" "docker" "kubernetes"];
+    extraGroups = [ "wheel" "docker" "kubernetes" ];
     shell = pkgs.zsh;
   };
 
