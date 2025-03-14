@@ -24,7 +24,7 @@
           value = "false";
         }
           {
-            name = "port";
+            name = "lb_port";
             value = "6443";
           }
           {
@@ -41,7 +41,7 @@
           }
           {
             name = "vip_cidr";
-            value = "24";
+            value = "32";
           }
           {
             name = "dns_mode";
@@ -113,6 +113,7 @@
           {
             mountPath = "/var/lib/kubernetes/secrets";
             name = "certs";
+            readOnly = true;
           }];
 
       }];
