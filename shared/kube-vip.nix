@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 {
   environment.systemPackages = with pkgs; [
 
@@ -69,7 +69,8 @@
           }
           {
             name = "bgp_routerid";
-            value = "10.13.13.3";
+            value = (builtins.elemAt
+            config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
           }
           {
             name = "bgp_as";
