@@ -123,7 +123,7 @@ in
     # disabled kubernetes to focus on DNS and networking first
     roles = [ "node" ];
     masterAddress = kubeMasterHostname;
-    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeAPILBport}";
+    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
     easyCerts = true;
     pki = {
         enable = true;
