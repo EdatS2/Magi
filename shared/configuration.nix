@@ -159,12 +159,12 @@ in
     kubelet.nodeIp = (builtins.elemAt
       config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
   };
-  services.etcd = {
-    # generator expressions from kubeNodesIP
-    listenPeerUrls = etcdUrlsPeer;
-    listenClientUrls = etcdUrlsClients;
-    advertiseClientUrls = etcdUrlsClients;
-  };
+  # services.etcd = {
+  #   # generator expressions from kubeNodesIP
+  #   listenPeerUrls = etcdUrlsPeer;
+  #   listenClientUrls = etcdUrlsClients;
+  #   advertiseClientUrls = etcdUrlsClients;
+  # };
 
   virtualisation.docker.enable = true;
   users.users.admin = {
