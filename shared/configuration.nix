@@ -121,9 +121,9 @@ in
   };
   services.kubernetes = {
     # disabled kubernetes to focus on DNS and networking first
-    roles = [ "node" ];
+    roles = [ "master" "node" ];
     masterAddress = kubeMasterHostname;
-    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
+    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeAPILBport}";
     easyCerts = true;
     pki = {
         enable = true;
