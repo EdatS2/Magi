@@ -8,7 +8,8 @@
 let
   kubeMasterIP = "10.13.13.10";
   kubeMasterHostname = "balthazar";
-  kubeMasterAPIServerPort = 6443;
+  kubeMasterAPIServerPort = 6444;
+  kubeAPILBport = 6443;
   kubeGateway = "10.13.13.1";
   kubeNodes = [ "balthazar"
                 "melchior-kube"
@@ -121,7 +122,7 @@ in
     # disabled kubernetes to focus on DNS and networking first
     roles = [ "node" ];
     masterAddress = kubeMasterHostname;
-    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
+    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeAPILBport}";
     easyCerts = true;
     pki = {
         enable = true;
