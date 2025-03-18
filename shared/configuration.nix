@@ -34,6 +34,8 @@ let
       [hostIP])
     [ "https://127.0.0.1:2380" ]
   ];
+  etcdInit = (map (p: "https://${p}:2380")
+      kubeNodesIP);
 in
 {
   imports = [
@@ -140,7 +142,6 @@ in
     roles = [ "master" "node" ];
     masterAddress = kubeMasterHostname;
     apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
-    easyCerts = true;
     pki = {
       enable = true;
       # todo add extra san
@@ -153,14 +154,15 @@ in
       etcd.servers = apiEtcdServers;
     };
     addons.dns.enable = true;
-    kubelet.nodeIp = (builtins.elemAt
-      config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
+    kubelet.nodeIp = hostIP;
   };
   services.etcd = {
     # generator expressions from kubeNodesIP
     listenPeerUrls = etcdUrlsPeer;
     listenClientUrls = etcdUrlsClients;
     advertiseClientUrls = etcdUrlsClients;
+    initialClusterState = "new";
+    initialCluster = etcdInit;
   };
 
   virtualisation.docker.enable = true;
