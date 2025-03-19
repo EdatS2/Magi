@@ -10,40 +10,40 @@ let
   kubeMasterHostname = "balthazar";
   kubeMasterAPIServerPort = 6443;
   kubeGateway = "10.13.13.1";
-  kubeNodes = [
-    "balthazar"
-    "melchior-kube"
-    "gaspard-kube"
-    "10.13.13.2"
-    "10.13.13.4"
-    "10.13.13.10"
-  ];
-  kubeNodesIP = [ "10.13.13.2" "10.13.13.3" "10.13.13.4" ];
+  kubeNetwork = {
+    balthazar = "10.13.13.3";
+    melchior-kube = "10.13.13.2";
+    gaspard-kube = "10.13.13.4";
+  };
+
   apiEtcdServers = (map (p: "https://${p}:2379")
-      kubeNodesIP);
+    (lib.attrVals kubeNetwork));
   hostIP = (builtins.elemAt
     config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
 
   etcdUrlsClients = builtins.concatLists [
     (map (p: "https://${p}:2379")
-      [hostIP])
+      [ hostIP ])
     [ "https://127.0.0.1:2379" ]
   ];
   etcdUrlsPeer = builtins.concatLists [
     (map (p: "https://${p}:2380")
-      [hostIP])
+      [ hostIP ])
     [ "https://127.0.0.1:2380" ]
   ];
-  etcdInit = (map (p: "https://${p}:2380")
-      kubeNodesIP);
-in
-{
-  imports = [
+  # hier moet ook hostname bij
+  etcdInit = builtins.concatStringsSep " " (builtins.attrValues
+  (builtins.mapAttrs (name: value: "${name}=https://${value}:2380")
+  kubeNetwork));
+
+    in
+    {
+    imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
     ./script.nix
     ./kube-vip.nix
-  ];
+    ];
   boot.loader.grub = {
     efiSupport = true;
     efiInstallAsRemovable = true;
@@ -145,7 +145,7 @@ in
     pki = {
       enable = true;
       # todo add extra san
-      cfsslAPIExtraSANs = kubeNodes;
+      cfsslAPIExtraSANs = lib.attrNames kubeNetwork;
     };
     apiserver = {
       securePort = kubeMasterAPIServerPort;
@@ -181,4 +181,4 @@ in
   users.mutableUsers = false;
 
   system.stateVersion = "24.05";
-}
+  }
