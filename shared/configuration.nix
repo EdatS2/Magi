@@ -16,8 +16,8 @@ let
     gaspard-kube = "10.13.13.4";
   };
 
-  apiEtcdServers = (map (p: "https://${p}:2379")
-    (lib.attrVals kubeNetwork));
+  apiEtcdServers = map (p: "https://${p}:2379")
+    (lib.attrVals kubeNetwork);
   hostIP = (builtins.elemAt
     config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
 
