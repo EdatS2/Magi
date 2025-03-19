@@ -32,9 +32,9 @@ let
     [ "https://127.0.0.1:2380" ]
   ];
   # hier moet ook hostname bij
-  etcdInit = builtins.concatStringsSep " " (builtins.attrValues
+  etcdInit = builtins.attrValues
   (builtins.mapAttrs (name: value: "${name}=https://${value}:2380")
-  kubeNetwork));
+  kubeNetwork);
 
     in
     {
