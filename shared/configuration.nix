@@ -17,7 +17,7 @@ let
   };
 
   apiEtcdServers = map (p: "https://${p}:2379")
-    (lib.attrVals kubeNetwork);
+    (lib.attrValues kubeNetwork);
   hostIP = (builtins.elemAt
     config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
 
