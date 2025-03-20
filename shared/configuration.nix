@@ -3,6 +3,7 @@
 , pkgs
 , config
 , osConfig
+, machines
 , ...
 }:
 let
@@ -17,7 +18,7 @@ let
   };
 
   apiEtcdServers = map (p: "https://${p}:2379")
-    (lib.attrValues kubeNetwork);
+    (lib.attrValues machines);
   hostIP = (builtins.elemAt
     config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
 
