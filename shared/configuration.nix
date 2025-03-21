@@ -2,49 +2,26 @@
 , lib
 , pkgs
 , config
-, osConfig
 , machines
 , ...
 }:
 let
-  kubeMasterIP = "10.13.13.3";
-  kubeMasterHostname = "balthazar";
-  kubeMasterAPIServerPort = 6443;
-  kubeGateway = "10.13.13.1";
-  kubeNetwork = {
-    balthazar = "10.13.13.3";
-    melchior-kube = "10.13.13.2";
-    gaspard-kube = "10.13.13.4";
-  };
 
-  apiEtcdServers = map (p: "https://${p}:2379")
-    (lib.attrValues machines);
-  hostIP = (builtins.elemAt
-    config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
-
-  etcdUrlsClients = builtins.concatLists [
-    (map (p: "https://${p}:2379")
-      [ hostIP ])
-    [ "https://127.0.0.1:2379" ]
-  ];
+  hostIP = machines.${config.system.name}.ip;
   etcdUrlsPeer = builtins.concatLists [
     (map (p: "https://${p}:2380")
       [ hostIP ])
     [ "https://127.0.0.1:2380" ]
   ];
   # hier moet ook hostname bij
-  etcdInit = builtins.attrValues
-  (builtins.mapAttrs (name: value: "${name}=https://${value}:2380")
-  kubeNetwork);
 
-    in
-    {
-    imports = [
+in
+{
+  imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
     ./script.nix
-    ./kube-vip.nix
-    ];
+  ];
   boot.loader.grub = {
     efiSupport = true;
     efiInstallAsRemovable = true;
@@ -94,6 +71,8 @@ let
       text = ''
         tv text | xargs -oI {} sh -c 'vim "$(echo {} | cut -d ":" -f 1)" +$(echo {} | cut -d ":" -f 2)' '';
       tgit = "cd $(tv git-repos)";
+      rebuild =
+        "sudo nixos-rebuild --flake ~/Magi#${config.system.name} switch";
     };
     oh-my-zsh = {
       enable = true;
@@ -126,33 +105,43 @@ let
     nix-direnv.enable = true;
   };
   networking = {
-    extraHosts = ''${kubeMasterIP} ${kubeMasterHostname}
+    extraHosts = ''${machines.kubeMaster.name} ${machines.kubemaster.port}
     '';
     dhcpcd.enable = true;
     # interfaces.ens18.ipv4.addresses = [{ address = "192.168.88.30"; prefixLength = 28; }];
     vlans = {
       kubernetes = {
         id = 100;
+        interface = "eno1";
+        # Kijk in de installer welke interface het gaat worden en stel dat dan
+        # goed in.
       };
     };
+    interfaces.kubernetes.ipv4.addresses = [{
+      address = hostIP;
+      prefixLength = 24;
+    }];
     firewall.enable = false;
-    nameservers = [ kubeGateway ];
+    nameservers = [ machines.kubeMaster.gateway ];
   };
   services.kubernetes = {
     # disabled kubernetes to focus on DNS and networking first
     roles = [ "master" "node" ];
-    masterAddress = kubeMasterHostname;
-    apiserverAddress = "https://${kubeMasterHostname}:${toString kubeMasterAPIServerPort}";
+    masterAddress = machines.kubeMaster.name;
+    apiserverAddress = "https://${machines.kubeMaster.name}:${toString
+    machines.kubeMaster.port}";
     pki = {
       enable = true;
       # todo add extra san
-      cfsslAPIExtraSANs = lib.attrNames kubeNetwork;
+      cfsslAPIExtraSANs = lib.attrNames machines;
     };
     apiserver = {
-      securePort = kubeMasterAPIServerPort;
-      advertiseAddress = kubeMasterIP;
+      securePort = machines.kubeMaster.port;
+      advertiseAddress = machines.kubeMaster.ip;
       # just need ip's here
-      etcd.servers = apiEtcdServers;
+      etcd.servers = map (p: "https://${p.ip}:2379") (lib.attrValues (lib.filterAttrs (_: machine:
+      machine ? node)
+        machines));
     };
     addons.dns.enable = true;
     kubelet.nodeIp = hostIP;
@@ -160,10 +149,20 @@ let
   services.etcd = {
     # generator expressions from kubeNodesIP
     listenPeerUrls = etcdUrlsPeer;
-    listenClientUrls = etcdUrlsClients;
-    advertiseClientUrls = etcdUrlsClients;
+    listenClientUrls = builtins.concatLists [
+    (map (p: "https://${p}:2379")
+      [ hostIP ])
+    [ "https://127.0.0.1:2379" ]
+  ];
+    advertiseClientUrls = builtins.concatLists [
+    (map (p: "https://${p}:2379")
+      [ hostIP ])
+    [ "https://127.0.0.1:2379" ]
+  ];
     initialClusterState = "new";
-    initialCluster = etcdInit;
+    initialCluster = builtins.attrValues
+    (builtins.mapAttrs (name: value: "${name}=https://${value.ip}:2380")
+      machines);
   };
 
   virtualisation.docker.enable = true;
@@ -182,4 +181,4 @@ let
   users.mutableUsers = false;
 
   system.stateVersion = "24.05";
-  }
+}

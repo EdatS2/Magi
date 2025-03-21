@@ -4,7 +4,6 @@ pkgs
 }:
 {
    networking = {
-       hostName = "balthazar"; 
        vlans.kubernetes.interface = "eno1"; 
        interfaces.kubernetes.ipv4.addresses = [{ address = "10.13.13.3";
        prefixLength = 24; }];       

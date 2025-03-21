@@ -56,7 +56,7 @@ let
         "kubernetes.svc.cluster.local"
       ] ++ concatLists
         (mapAttrsToList
-          (hostname: machine: [ hostname machine.privateIpAddress ])
+          (hostname: machine: [ hostname machine.ip ])
           (filterAttrs
             (_: machine: machine ? kubernetes)
             machines));
@@ -102,7 +102,7 @@ let
       profile = "auth-only";
       CN = "system:node:${hostname}";
       names = { O = "system:nodes"; };
-      hostnames = [ "kube.eu1" hostname machine.privateIpAddress ];
+      hostnames = [ "kube.eu1" hostname machine.ip ];
     })
     (filterAttrs (_: machine: machine ? kubernetes) machines)
   # Etcd server certificates, one per host
@@ -111,7 +111,7 @@ let
       name = "etcd-${hostname}";
       profile = "auth-only";
       CN = "etcd:${hostname}";
-      hostnames = [ "127.0.0.1" "localhost" hostname machine.privateIpAddress ];
+      hostnames = [ "127.0.0.1" "localhost" hostname machine.ip ];
     })
     (filterAttrs (_: machine: machine ? etcd) machines)
   # Etcd client certificates for kubernetes masters

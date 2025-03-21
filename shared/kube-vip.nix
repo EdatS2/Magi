@@ -1,11 +1,12 @@
-{ pkgs, config, ... }:
+{ pkgs, config, machines, ... }:
 let
     peers = ["10.13.13.1"
              "10.13.13.2"
              "10.13.13.3"
              "10.13.13.4"];
-    hostIP = (builtins.elemAt
-            config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
+    # hostIP = (builtins.elemAt
+    #         config.networking.interfaces.kubernetes.ipv4.addresses 0).address;
+    hostIP = machines.${config.networking.hostName}.ip;
     bgpPeers = builtins.concatStringsSep "," (map (p: "${p}:65000::false")
     (builtins.filter (p: p!= hostIP) peers));
 in
