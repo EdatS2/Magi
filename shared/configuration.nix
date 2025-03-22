@@ -5,17 +5,6 @@
 , machines
 , ...
 }:
-let
-
-  hostIP = machines.${config.system.name}.ip;
-  etcdUrlsPeer = builtins.concatLists [
-    (map (p: "https://${p}:2380")
-      [ hostIP ])
-    [ "https://127.0.0.1:2380" ]
-  ];
-  # hier moet ook hostname bij
-
-in
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -118,7 +107,7 @@ in
       };
     };
     interfaces.kubernetes.ipv4.addresses = [{
-      address = hostIP;
+      address = machines.${config.system.name}.ip;
       prefixLength = 24;
     }];
     firewall.enable = false;
@@ -139,24 +128,29 @@ in
       securePort = machines.kubeMaster.port;
       advertiseAddress = machines.kubeMaster.ip;
       # just need ip's here
-      etcd.servers = map (p: "https://${p.ip}:2379") (lib.attrValues (lib.filterAttrs (_: machine:
+      etcd.servers = map (p: "https://${p.ip}:2379") (lib.attrValues
+      (lib.filterAttrs (_: machine:
       machine ? node)
         machines));
     };
     addons.dns.enable = true;
-    kubelet.nodeIp = hostIP;
+    kubelet.nodeIp = machines.${config.system.name}.ip;
   };
   services.etcd = {
     # generator expressions from kubeNodesIP
-    listenPeerUrls = etcdUrlsPeer;
+    listenPeerUrls = builtins.concatLists [
+    (map (p: "https://${p}:2380")
+      [ machines.${config.system.name}.ip ])
+    [ "https://127.0.0.1:2380" ]
+  ];
     listenClientUrls = builtins.concatLists [
     (map (p: "https://${p}:2379")
-      [ hostIP ])
+      [ machines.${config.system.name}.ip ])
     [ "https://127.0.0.1:2379" ]
   ];
     advertiseClientUrls = builtins.concatLists [
     (map (p: "https://${p}:2379")
-      [ hostIP ])
+      [ machines.${config.system.name}.ip ])
     [ "https://127.0.0.1:2379" ]
   ];
     initialClusterState = "new";
