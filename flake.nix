@@ -14,6 +14,7 @@
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
       machines = import ./machines.nix pkgs;
     in
+    with pkgs; with pkgs.lib;
     {
       apps.genCerts = {
         type = "app";
@@ -21,20 +22,20 @@
       };
       apps.showCert = {
         type = "app";
-        program = toString (pkgs.writers.writeBash "show-cert" ''
+        program = toString (writers.writeBash "show-cert" ''
           if [[ $# != 1 ]]; then
              echo "ERROR: Specify certificate argument"
              exit 1
           fi
           CERT="$1"
-          ${pkgs.openssl}/bin/openssl x509 -text -noout -in "$CERT"
+          ${openssl}/bin/openssl x509 -text -noout -in "$CERT"
         '');
       };
       apps.deploy = {
         type = "app";
         program = import ./utils/deploy.nix pkgs machines;
       };
-      nixosConfigurations = pkgs.lib.genAttrs (pkgs.lib.attrNames machines)
+      nixosConfigurations = genAttrs (attrNames machines)
         (name: nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit machines; };
@@ -43,6 +44,7 @@
             disko.nixosModules.disko
             ./shared/configuration.nix
             ./hardware-configuration.nix
+            # for maintance
             ./shared/disk-config.nix
             ./shared/kube-vip.nix
             sops-nix.nixosModules.sops

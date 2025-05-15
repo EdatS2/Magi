@@ -7,7 +7,7 @@ let
     { name = "auth-only"; }
     { name = "auth-and-cert-sign"; extra = [ "cert sign" ]; }
   ];
-  caName = "demo-ca";
+  caName = "ca";
   caConf = pkgs.writeText "${caName}-conf.json" (toJSON
     {
       signing = {
@@ -30,8 +30,8 @@ let
     names = [ names ];
   });
   caCSR = mkCSR {
-    CN = "Demo CA";
-    names = { O = "Demo Org"; };
+    CN = "NETHERLANDS";
+    names = { O = "Salverda-SERVER"; };
   };
   certificates = [
     {
@@ -47,7 +47,7 @@ let
       names = { O = "Kubernetes"; };
       hostnames = [
         "kube.eu1"
-        "10.33.0.1" # first IP in `--service-cluster-ip-range`
+        "10.13.13.2" # first IP in `--service-cluster-ip-range`
         "127.0.0.1"
         "kubernetes"
         "kubernetes.default"
@@ -124,11 +124,12 @@ let
     (filterAttrs (_: machine: machine ? kubernetes) machines);
 in
 toString (pkgs.writers.writeBash "gen-certs" ''
-  if [[ $# != 1 ]]; then
-     echo "ERROR: Specify directory argument"
-     exit 1
-  fi
-  DIR="$1"
+  # if [[ $# != 1 ]]; then
+  #    echo "ERROR: Specify directory argument"
+  #    exit 1
+  # fi
+  mkdir -p "./certs"
+  DIR="./certs"
   mkdir -p "$DIR/ssl"
   cd "$DIR/ssl"
   if [[ ! -f ${caName}.pem ]]; then

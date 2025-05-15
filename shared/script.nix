@@ -22,6 +22,11 @@ let
 
     exit 0
   '';
+  permissionScript = ''
+    #!/bin/bash
+    chown kubernetes:kubernetes *-key.pem
+    chown etcd:kubernetes etcd-*-key.pem
+  '';
 
 in
 {
@@ -52,6 +57,16 @@ in
       OnCalendar="*-*-* *:*:00 Europe/Paris";
       Unit = "CICD.service";
     };
+  };
+  systemd.services.Kube-certs = {
+        enable = true;
+        after = [ "network.target" ];
+        wantedBy = [ "etcd.service" ];
+        serviceConfig = {
+            Type = "oneshot";
+            WorkingDirectory = "/var/lib/kubernetes/secrets";
+        };
+        script = permissionScript;
   };
 
 }

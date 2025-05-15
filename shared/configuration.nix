@@ -5,6 +5,7 @@
 , machines
 , ...
 }:
+with builtins;  with pkgs.lib;
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -94,14 +95,14 @@
     nix-direnv.enable = true;
   };
   networking = {
-    extraHosts = ''${machines.kubeMaster.name} ${machines.kubemaster.port}
+    extraHosts = ''${machines.kubeMaster.name} ${toString machines.kubeMaster.port}
     '';
     dhcpcd.enable = true;
     # interfaces.ens18.ipv4.addresses = [{ address = "192.168.88.30"; prefixLength = 28; }];
     vlans = {
       kubernetes = {
         id = 100;
-        interface = "eno1";
+        interface = machines.${config.system.name}.interface;
         # Kijk in de installer welke interface het gaat worden en stel dat dan
         # goed in.
       };
@@ -119,14 +120,32 @@
     masterAddress = machines.kubeMaster.name;
     apiserverAddress = "https://${machines.kubeMaster.name}:${toString
     machines.kubeMaster.port}";
+    kubeconfig = {
+        certFile = "/var/lib/kubernetes/secrets/ca.pem";
+        keyFile = "/var/lib/kubernetes/secrets/ca-key.pem";
+        server = "https://${machines.kubeMaster.ip}";
+    };
     pki = {
-      enable = true;
+      # we generate certs ourselves
+      enable = false;
       # todo add extra san
-      cfsslAPIExtraSANs = lib.attrNames machines;
+      # cfsslAPIExtraSANs = lib.attrNames machines;
     };
     apiserver = {
       securePort = machines.kubeMaster.port;
       advertiseAddress = machines.kubeMaster.ip;
+      serviceAccountSigningKeyFile =
+      "/var/lib/kubernetes/secrets/kubernetes-service-account-key.pem";
+      serviceAccountKeyFile = 
+      "/var/lib/kubernetes/secrets/kubernetes-service-account.pem";
+      tlsKeyFile = 
+      "/var/lib/kubernetes/secrets/kubernetes-key.pem";
+      tlsCertFile = 
+      "/var/lib/kubernetes/secrets/kubernetes.pem";
+      kubeletClientKeyFile = 
+      "/var/lib/kubernetes/secrets/kubelet-client-key.pem";
+      kubeletClientCertFile = 
+      "/var/lib/kubernetes/secrets/kubelet-client.pem";
       # just need ip's here
       etcd.servers = map (p: "https://${p.ip}:2379") (lib.attrValues
       (lib.filterAttrs (_: machine:
@@ -137,26 +156,33 @@
     kubelet.nodeIp = machines.${config.system.name}.ip;
   };
   services.etcd = {
+    trustedCaFile = concatStrings ["/var/lib/kubernetes/secrets/"
+    "etcd-${config.system.name}.pem"];
+    clientCertAuth = true;
+    keyFile = concatStrings ["/var/lib/kubernetes/secrets/"
+    "etcd-client-${config.system.name}-key.pem"];
+    certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
+    "etcd-client-${config.system.name}.pem"];
     # generator expressions from kubeNodesIP
-    listenPeerUrls = builtins.concatLists [
+    listenPeerUrls = concatLists [
     (map (p: "https://${p}:2380")
       [ machines.${config.system.name}.ip ])
     [ "https://127.0.0.1:2380" ]
   ];
-    listenClientUrls = builtins.concatLists [
+    listenClientUrls = concatLists [
     (map (p: "https://${p}:2379")
       [ machines.${config.system.name}.ip ])
     [ "https://127.0.0.1:2379" ]
   ];
-    advertiseClientUrls = builtins.concatLists [
-    (map (p: "https://${p}:2379")
-      [ machines.${config.system.name}.ip ])
-    [ "https://127.0.0.1:2379" ]
-  ];
-    initialClusterState = "new";
-    initialCluster = builtins.attrValues
-    (builtins.mapAttrs (name: value: "${name}=https://${value.ip}:2380")
-      machines);
+    advertiseClientUrls = (map (p: "https://${p}:2379")
+      [ machines.${config.system.name}.ip ]);
+    initialAdvertisePeerUrls = (map (p: "https://${p}:2380")
+      [ machines.${config.system.name}.ip ]);
+    initialCluster = attrValues
+    (mapAttrs (name: value: "${name}=https://${value.ip}:2380")
+      (lib.filterAttrs (_: machine:
+      machine ? node)
+        machines));
   };
 
   virtualisation.docker.enable = true;
