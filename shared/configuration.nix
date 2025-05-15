@@ -147,10 +147,18 @@ with builtins;  with pkgs.lib;
       kubeletClientCertFile = 
       "/var/lib/kubernetes/secrets/kubelet-client.pem";
       # just need ip's here
-      etcd.servers = map (p: "https://${p.ip}:2379") (lib.attrValues
-      (lib.filterAttrs (_: machine:
-      machine ? node)
-        machines));
+      etcd = {
+        servers = map (p: "https://${p.ip}:2379") (lib.attrValues
+            (lib.filterAttrs (_: machine:
+            machine ? node)
+            machines));
+        keyFile = concatStrings ["/var/lib/kubernetes/secrets/"
+        "etcd-client-${config.system.name}-key.pem"];
+        certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
+        "etcd-client-${config.system.name}.pem"];
+        caFile = concatStrings[ "/var/lib/kubernetes/secrets/"
+        "ca.pem"];
+      };
     };
     addons.dns.enable = true;
     kubelet.nodeIp = machines.${config.system.name}.ip;
