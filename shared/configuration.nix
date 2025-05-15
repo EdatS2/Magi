@@ -153,9 +153,9 @@ with builtins;  with pkgs.lib;
             machine ? node)
             machines));
         keyFile = concatStrings ["/var/lib/kubernetes/secrets/"
-        "etcd-client-${config.system.name}-key.pem"];
+        "kube-apiserver-etcd-client-key.pem"];
         certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
-        "etcd-client-${config.system.name}.pem"];
+        "kube-apiserver-etcd-client.pem"];
         caFile = concatStrings[ "/var/lib/kubernetes/secrets/"
         "ca.pem"];
       };
