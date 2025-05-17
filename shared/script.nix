@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
 let
   fetchScript = ''
     #!/bin/bash
@@ -26,9 +26,45 @@ let
     #!/bin/bash
     chown kubernetes:kubernetes *-key.pem
     chown etcd:kubernetes etcd-*-key.pem
-    chmod 644 etcd-client-*-key.pem 
+    chmod 644 *-key.pem 
 # set correct write read permissions
   '';
+    kubeConfigWriter = pkgs.writeText "cluster-admin.kubeconfig"
+    (builtins.toJSON {
+    apiVersion = "v1";
+    kind = "Config";
+    clusters = [
+    {
+        cluster = {
+            certificate-authority = "/var/lib/kubernetes/secrets/ca.pem";
+            server = "https://127.0.0.1:6443";
+        };
+        name = "Salverda";
+    }
+    ];
+    contexts = [
+    {
+        context = {
+            cluster = "Salverda";
+            user = "admin";
+        };
+        name = "dev-context";
+    }
+    ];
+    current-context = "dev-context";
+    users = [
+    {
+        name = "admin";
+        user = {
+            client-certificate = "/var/lib/kubernetes/secrets/kubernetes-admin.pem";
+            client-key = "/var/lib/kubernetes/secrets/kubernetes-admin-key.pem";
+        };
+    }
+    ];
+});
+
+
+
 
 in
 {
@@ -70,6 +106,15 @@ in
         };
         script = permissionScript;
   };
-
+  systemd.services.Kube-config = {
+        enable = true;
+        after = [ "network.target" ];
+        wantedBy = [ "kube-apiserver.service" ];
+        serviceConfig = {
+            Type = "oneshot";
+            WorkingDirectory = "/etc/kubernetes";
+        };
+        script = kubeConfigWriter;
+  };
 }
 
