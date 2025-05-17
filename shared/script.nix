@@ -26,6 +26,8 @@ let
     #!/bin/bash
     chown kubernetes:kubernetes *-key.pem
     chown etcd:kubernetes etcd-*-key.pem
+    chmod 644 etcd-client-*-key.pem 
+# set correct write read permissions
   '';
 
 in
