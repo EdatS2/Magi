@@ -29,8 +29,7 @@ let
     chmod 644 *-key.pem 
 # set correct write read permissions
   '';
-    kubeConfigWriter = '' 
-    echo "${(builtins.toJSON {
+    kubeConfig = builtins.toJSON {
     apiVersion = "v1";
     kind = "Config";
     clusters = [
@@ -60,9 +59,11 @@ let
             client-key = "/var/lib/kubernetes/secrets/kubernetes-admin-key.pem";
         };
     }
-    ];
-})}" > config
-    chown kubernetes:kubernetes *'';
+    ];};
+    kubeConfigWriter = '' 
+    echo "${kubeConfig}" > config
+    chown kubernetes:kubernetes *
+    '';
     
 in
 {
