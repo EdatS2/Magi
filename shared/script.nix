@@ -29,8 +29,8 @@ let
     chmod 644 *-key.pem 
 # set correct write read permissions
   '';
-    kubeConfigWriter = pkgs.writeText "cluster-admin.kubeconfig"
-    (builtins.toJSON {
+    kubeConfigWriter = '' 
+    echo ${(builtins.toJSON {
     apiVersion = "v1";
     kind = "Config";
     clusters = [
@@ -61,11 +61,7 @@ let
         };
     }
     ];
-});
-
-
-
-
+})} > cluster-admin.kubeconfig'';
 in
 {
 
