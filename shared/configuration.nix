@@ -157,13 +157,14 @@ with builtins;  with pkgs.lib;
         certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
         "etcd-client-${config.system.name}.pem"];
         caFile = concatStrings[ "/var/lib/kubernetes/secrets/"
-        "ca.pem"];
+        "etcd-${config.system.name}.pem"];
       };
     };
     addons.dns.enable = true;
     kubelet.nodeIp = machines.${config.system.name}.ip;
   };
   services.etcd = {
+    name = config.system.name;
     trustedCaFile = concatStrings ["/var/lib/kubernetes/secrets/"
     "etcd-${config.system.name}.pem"];
     clientCertAuth = true;
@@ -172,6 +173,7 @@ with builtins;  with pkgs.lib;
     certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
     "etcd-client-${config.system.name}.pem"];
     # generator expressions from kubeNodesIP
+    peerClientCertAuth = false;
     listenPeerUrls = concatLists [
     (map (p: "https://${p}:2380")
       [ machines.${config.system.name}.ip ])

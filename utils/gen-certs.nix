@@ -30,7 +30,7 @@ let
     names = [ names ];
   });
   caCSR = mkCSR {
-    CN = "NETHERLANDS";
+    CN = "Kubernetes";
     names = { O = "Salverda-SERVER"; };
   };
   certificates = [
@@ -47,6 +47,7 @@ let
       names = { O = "Kubernetes"; };
       hostnames = [
         "kube.eu1"
+        "10.13.13.10" #VIP address
         "10.13.13.2" # first IP in `--service-cluster-ip-range`
         "127.0.0.1"
         "kubernetes"
@@ -120,6 +121,7 @@ let
       name = "etcd-client-${hostname}";
       profile = "auth-only";
       CN = "etcd-client:${hostname}";
+      hostnames = [ "127.0.0.1" "localhost" hostname machine.ip ];
     })
     (filterAttrs (_: machine: machine ? kubernetes) machines);
 in
