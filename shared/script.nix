@@ -29,7 +29,8 @@ let
     chmod 644 *-key.pem 
 # set correct write read permissions
   '';
-    kubeConfig = builtins.toJSON {
+    kubeConfig = pkgs.writers.writeText "config" ''
+    ${(builtins.toJSON {
     apiVersion = "v1";
     kind = "Config";
     clusters = [
@@ -59,12 +60,13 @@ let
             client-key = "/var/lib/kubernetes/secrets/kubernetes-admin-key.pem";
         };
     }
-    ];};
-    kubeConfigWriter = '' 
-    echo "${kubeConfig}" > config
-    chown kubernetes:kubernetes *
+    ];
+})}'';
+    kubeConfigWriter = ''
+    cat ${kubeConfig} > config
+    chmod 644 config
     '';
-    
+
 in
 {
 
@@ -111,7 +113,7 @@ in
         wantedBy = [ "kube-apiserver.service" ];
         serviceConfig = {
             Type = "oneshot";
-            WorkingDirectory = "/var/lib/kubernetes/.kube";
+            WorkingDirectory = "/etc/kubernetes";
         };
         script = kubeConfigWriter;
   };
