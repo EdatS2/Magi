@@ -61,7 +61,9 @@ let
         };
     }
     ];
-})} > config'';
+})} > config
+    chown kubernetes:kubernetes *'';
+    
 in
 {
 
