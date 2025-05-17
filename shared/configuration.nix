@@ -126,7 +126,7 @@ with builtins;  with pkgs.lib;
     # disabled kubernetes to focus on DNS and networking first
     roles = [ "master" "node" ];
     masterAddress = machines.kubeMaster.name;
-    apiserverAddress = "https://${machines.kubeMaster.ip}:${toString
+    apiserverAddress = "https://${machines.kubeMaster.name}:${toString
     machines.kubeMaster.port}";
     kubeconfig = {
         certFile = "/var/lib/kubernetes/secrets/ca.pem";
@@ -176,6 +176,7 @@ with builtins;  with pkgs.lib;
         "/var/lib/kubernetes/secrets/kubelet-${config.system.name}-key.pem";
         kubeconfig.certFile =
         "/var/lib/kubernetes/secrets/kubelet-${config.system.name}.pem";
+        kubeconfig.server = "127.0.0.1:6443";
     };
   };
   services.etcd = {
