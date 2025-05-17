@@ -30,7 +30,7 @@ let
 # set correct write read permissions
   '';
     kubeConfigWriter = '' 
-    cat > config << EOL ${(builtins.toJSON {
+    echo "${(builtins.toString (builtins.toJSON {
     apiVersion = "v1";
     kind = "Config";
     clusters = [
@@ -61,7 +61,7 @@ let
         };
     }
     ];
-})} EOL
+}))}" > config
     chown kubernetes:kubernetes *'';
     
 in
