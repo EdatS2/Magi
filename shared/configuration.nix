@@ -103,7 +103,7 @@ with builtins;  with pkgs.lib;
     nix-direnv.enable = true;
   };
   networking = {
-    extraHosts = ''${machines.kubeMaster.name} ${toString machines.kubeMaster.port}
+    extraHosts = ''${machines.kubeMaster.ip} ${toString machines.kubeMaster.name}
     '';
     dhcpcd.enable = true;
     # interfaces.ens18.ipv4.addresses = [{ address = "192.168.88.30"; prefixLength = 28; }];
@@ -126,7 +126,7 @@ with builtins;  with pkgs.lib;
     # disabled kubernetes to focus on DNS and networking first
     roles = [ "master" "node" ];
     masterAddress = machines.kubeMaster.name;
-    apiserverAddress = "https://${machines.kubeMaster.name}:${toString
+    apiserverAddress = "https://${machines.kubeMaster.ip}:${toString
     machines.kubeMaster.port}";
     kubeconfig = {
         certFile = "/var/lib/kubernetes/secrets/ca.pem";
@@ -169,9 +169,17 @@ with builtins;  with pkgs.lib;
       };
     };
     addons.dns.enable = true;
-    kubelet.nodeIp = machines.${config.system.name}.ip;
+    kubelet = {
+        nodeIp = machines.${config.system.name}.ip;
+        enable = machines.${config.system.name}.node;
+        kubeconfig.keyFile =
+        "/var/lib/kubernetes/secrets/kubelet-${config.system.name}-key.pem";
+        kubeconfig.certFile =
+        "/var/lib/kubernetes/secrets/kubelet-${config.system.name}.pem";
+    };
   };
   services.etcd = {
+    enable = machines.${config.system.name}.etcd.enable;
     name = config.system.name;
     trustedCaFile = concatStrings ["/var/lib/kubernetes/secrets/"
     "ca.pem"];

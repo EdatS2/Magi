@@ -32,6 +32,6 @@ with builtins; with pkgs.lib;
       ip = "10.13.13.10";
       gateway = "10.13.13.1";
       port = 6443;
-      name = "balthazar";
+      name = "kubernetes";
   };
 }
