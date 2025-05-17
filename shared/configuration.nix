@@ -176,7 +176,8 @@ with builtins;  with pkgs.lib;
         "/var/lib/kubernetes/secrets/kubelet-${config.system.name}-key.pem";
         kubeconfig.certFile =
         "/var/lib/kubernetes/secrets/kubelet-${config.system.name}.pem";
-        kubeconfig.server = "127.0.0.1:6443";
+        kubeconfig.caFile = "/var/lib/kubernetes/secrets/ca.pem";
+        kubeconfig.server = "10.13.13.2:6443";
     };
   };
   services.etcd = {
