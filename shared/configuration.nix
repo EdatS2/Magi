@@ -114,57 +114,57 @@ with builtins;  with pkgs.lib;
     firewall.enable = false;
     nameservers = [ machines.kubeMaster.gateway ];
   };
-  services.kubernetes = {
-    # disabled kubernetes to focus on DNS and networking first
-    roles = [ "master" "node" ];
-    masterAddress = machines.kubeMaster.name;
-    apiserverAddress = "https://${machines.kubeMaster.name}:${toString
-    machines.kubeMaster.port}";
-    kubeconfig = {
-        certFile = "/var/lib/kubernetes/secrets/ca.pem";
-        keyFile = "/var/lib/kubernetes/secrets/ca-key.pem";
-        server = "https://${machines.kubeMaster.ip}";
-    };
-    pki = {
-      # we generate certs ourselves
-      enable = false;
-      # todo add extra san
-      # cfsslAPIExtraSANs = lib.attrNames machines;
-    };
-    apiserver = {
-      securePort = machines.kubeMaster.port;
-      advertiseAddress = machines.kubeMaster.ip;
-      serviceAccountSigningKeyFile =
-      "/var/lib/kubernetes/secrets/kubernetes-service-account-key.pem";
-      serviceAccountKeyFile = 
-      "/var/lib/kubernetes/secrets/kubernetes-service-account.pem";
-      tlsKeyFile = 
-      "/var/lib/kubernetes/secrets/kubernetes-key.pem";
-      tlsCertFile = 
-      "/var/lib/kubernetes/secrets/kubernetes.pem";
-      kubeletClientKeyFile = 
-      "/var/lib/kubernetes/secrets/kubelet-client-key.pem";
-      kubeletClientCertFile = 
-      "/var/lib/kubernetes/secrets/kubelet-client.pem";
-      # just need ip's here
-      etcd = {
-        servers = map (p: "https://${p.ip}:2379") (lib.attrValues
-            (lib.filterAttrs (_: machine:
-            machine ? node)
-            machines));
-        keyFile = concatStrings ["/var/lib/kubernetes/secrets/"
-        "etcd-client-${config.system.name}-key.pem"];
-        certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
-        "etcd-client-${config.system.name}.pem"];
-        caFile = concatStrings[ "/var/lib/kubernetes/secrets/"
-        "ca.pem"];
-      };
-    };
-    addons.dns.enable = true;
-    kubelet.nodeIp = machines.${config.system.name}.ip;
-  };
+  # services.kubernetes = {
+  #   # disabled kubernetes to focus on DNS and networking first
+  #   roles = [ "master" "node" ];
+  #   masterAddress = machines.kubeMaster.name;
+  #   apiserverAddress = "https://${machines.kubeMaster.name}:${toString
+  #   machines.kubeMaster.port}";
+  #   kubeconfig = {
+  #       certFile = "/var/lib/kubernetes/secrets/ca.pem";
+  #       keyFile = "/var/lib/kubernetes/secrets/ca-key.pem";
+  #       server = "https://${machines.kubeMaster.ip}";
+  #   };
+  #   pki = {
+  #     # we generate certs ourselves
+  #     enable = false;
+  #     # todo add extra san
+  #     # cfsslAPIExtraSANs = lib.attrNames machines;
+  #   };
+  #   apiserver = {
+  #     securePort = machines.kubeMaster.port;
+  #     advertiseAddress = machines.kubeMaster.ip;
+  #     serviceAccountSigningKeyFile =
+  #     "/var/lib/kubernetes/secrets/kubernetes-service-account-key.pem";
+  #     serviceAccountKeyFile = 
+  #     "/var/lib/kubernetes/secrets/kubernetes-service-account.pem";
+  #     tlsKeyFile = 
+  #     "/var/lib/kubernetes/secrets/kubernetes-key.pem";
+  #     tlsCertFile = 
+  #     "/var/lib/kubernetes/secrets/kubernetes.pem";
+  #     kubeletClientKeyFile = 
+  #     "/var/lib/kubernetes/secrets/kubelet-client-key.pem";
+  #     kubeletClientCertFile = 
+  #     "/var/lib/kubernetes/secrets/kubelet-client.pem";
+  #     # just need ip's here
+  #     etcd = {
+  #       servers = map (p: "https://${p.ip}:2379") (lib.attrValues
+  #           (lib.filterAttrs (_: machine:
+  #           machine ? node)
+  #           machines));
+  #       keyFile = concatStrings ["/var/lib/kubernetes/secrets/"
+  #       "etcd-client-${config.system.name}-key.pem"];
+  #       certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
+  #       "etcd-client-${config.system.name}.pem"];
+  #       caFile = concatStrings[ "/var/lib/kubernetes/secrets/"
+  #       "ca.pem"];
+  #     };
+  #   };
+  #   addons.dns.enable = true;
+  #   kubelet.nodeIp = machines.${config.system.name}.ip;
+  # };
   services.etcd = {
-    enable = false;
+      enable = false;
     name = config.system.name;
     trustedCaFile = concatStrings ["/var/lib/kubernetes/secrets/"
     "ca.pem"];
