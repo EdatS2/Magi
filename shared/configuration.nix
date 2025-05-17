@@ -164,7 +164,7 @@ with builtins;  with pkgs.lib;
   #   kubelet.nodeIp = machines.${config.system.name}.ip;
   # };
   services.etcd = {
-      enable = false;
+      enable = true;
     name = config.system.name;
     trustedCaFile = concatStrings ["/var/lib/kubernetes/secrets/"
     "ca.pem"];
