@@ -113,7 +113,7 @@ in
         wantedBy = [ "kube-apiserver.service" ];
         serviceConfig = {
             Type = "oneshot";
-            WorkingDirectory = "/etc/kubernetes";
+            WorkingDirectory = "/var/lib/kubernetes/.kube";
         };
         script = kubeConfigWriter;
   };
