@@ -169,15 +169,29 @@ with builtins;  with pkgs.lib;
       };
     };
     addons.dns.enable = true;
+    scheduler.kubeconfig = {
+        keyFile =
+            "/var/lib/kubernetes/secrets/kube-scheduler-key.pem";
+        certFile =
+            "/var/lib/kubernetes/secrets/kube-scheduler.pem";
+    };
+    controllerManager.kubeconfig = {
+        keyFile =
+            "/var/lib/kubernetes/secrets/kube-controller-manager-key.pem";
+        certFile =
+            "/var/lib/kubernetes/secrets/kube-controller-manager.pem";
+    };
     kubelet = {
         nodeIp = machines.${config.system.name}.ip;
         enable = machines.${config.system.name}.node;
-        kubeconfig.keyFile =
-        "/var/lib/kubernetes/secrets/kubelet-${config.system.name}-key.pem";
-        kubeconfig.certFile =
-        "/var/lib/kubernetes/secrets/kubelet-${config.system.name}.pem";
-        kubeconfig.caFile = "/var/lib/kubernetes/secrets/ca.pem";
-        kubeconfig.server = "10.13.13.2:6443";
+        kubeconfig = {
+            keyFile =
+                "/var/lib/kubernetes/secrets/kubelet-${config.system.name}-key.pem";
+            certFile =
+                "/var/lib/kubernetes/secrets/kubelet-${config.system.name}.pem";
+            caFile = "/var/lib/kubernetes/secrets/ca.pem";
+            server = "10.13.13.3:6443";
+        };
     };
   };
   services.etcd = {
