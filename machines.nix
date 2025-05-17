@@ -26,7 +26,7 @@ with builtins; with pkgs.lib;
     #node not yet created
     kubernetes.enable = false;
     etcd.enable = false;
-    node = true;
+    node = false;
   };
   kubeMaster = {
       ip = "10.13.13.10";
