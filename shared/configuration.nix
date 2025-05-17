@@ -157,7 +157,7 @@ with builtins;  with pkgs.lib;
         certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
         "etcd-client-${config.system.name}.pem"];
         caFile = concatStrings[ "/var/lib/kubernetes/secrets/"
-        "etcd-${config.system.name}.pem"];
+        "ca.pem"];
       };
     };
     addons.dns.enable = true;
@@ -166,7 +166,7 @@ with builtins;  with pkgs.lib;
   services.etcd = {
     name = config.system.name;
     trustedCaFile = concatStrings ["/var/lib/kubernetes/secrets/"
-    "etcd-${config.system.name}.pem"];
+    "ca.pem"];
     clientCertAuth = true;
     keyFile = concatStrings ["/var/lib/kubernetes/secrets/"
     "etcd-client-${config.system.name}-key.pem"];
