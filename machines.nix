@@ -24,11 +24,13 @@ with builtins; with pkgs.lib;
   gaspard-kube = {
     ip = "10.13.13.4";
     #placeholder
-    localIp = "0.0.0.0";
+    localIp = "192.168.88.111";
+    interface = "ens18";
+    disk = "/dev/sda";
     #node not yet created
-    kubernetes.enable = false;
-    etcd.enable = false;
-    node = false;
+    kubernetes.enable = true;
+    etcd.enable = true;
+    node = true;
     master = false;
   };
   kubeMaster = {
