@@ -63,14 +63,14 @@ with builtins;  with pkgs.lib;
       tgit = "cd $(tv git-repos)";
       rebuild =
         "sudo nixos-rebuild --flake ~/Magi#${config.system.name} switch";
-      etcdctl = ''
-        etcdctl
-        --cert="/var/lib/kubernetes/secrets/etcd-${config.system.name}-client.pem"
-        --cacert="/var/lib/kubernetes/secrets/ca.pem"
-        --key="/var/lib/kubernetes/secrets/etcd-${config.system.name}-client-key.pem"
-        --server=127.0.0.1:2379
-      '';
-      k = "kubectl";
+      # etcdctl = ''
+      #   etcdctl
+      #   --cert="/var/lib/kubernetes/secrets/etcd-${config.system.name}-client.pem"
+      #   --cacert="/var/lib/kubernetes/secrets/ca.pem"
+      #   --key="/var/lib/kubernetes/secrets/etcd-${config.system.name}-client-key.pem"
+      #   --server=127.0.0.1:2379
+      # '';
+      k = "sudo kubectl";
     };
     oh-my-zsh = {
       enable = true;
@@ -138,7 +138,10 @@ with builtins;  with pkgs.lib;
       clusterInit = machines.${config.system.name}.master;
       serverAddr = if (machines.${config.system.name}.master == false) then
                   "https://${machines.kubeMaster.ip}:6443" else "";
-      extraFlags = [ "--debug" ];
+      extraFlags = [ 
+      "--debug" 
+      "--advertise-address=${machines.${config.system.name}.ip}"
+      ];
   };
 
   virtualisation.docker.enable = true;
