@@ -136,7 +136,8 @@ with builtins;  with pkgs.lib;
       role = "server";
       tokenFile = "/home/admin/token";
       clusterInit = machines.${config.system.name}.master;
-      serverAddr = "https://${machines.kubeMaster.ip}:6443";
+      serverAddr = if (machines.${config.system.name}.master == false) then
+                  "https://${machines.kubeMaster.ip}:6443" else "";
       extraFlags = [ "--debug" ];
   };
 
