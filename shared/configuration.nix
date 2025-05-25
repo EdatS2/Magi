@@ -119,7 +119,16 @@ with builtins;  with pkgs.lib;
       address = machines.${config.system.name}.ip;
       prefixLength = 24;
     }];
-    firewall.enable = false;
+    firewall = {
+        allowedTCPPorts = [ 
+        22
+        6443
+        2379
+        2380
+        ];
+        allowedUDPPorts = [ 8472 ];
+
+    };
     nameservers = [ machines.kubeMaster.gateway ];
   };
   services.k3s = {
@@ -128,6 +137,7 @@ with builtins;  with pkgs.lib;
       tokenFile = "/root/token";
       clusterInit = machines.${config.system.name}.master;
       serverAddr = "https://${machines.kubeMaster.ip}:6443";
+      extraFlags = [ "--debug" ];
   };
 
   virtualisation.docker.enable = true;
