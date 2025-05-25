@@ -19,9 +19,9 @@ toString (writers.writeBash "deploy" ''
       }
       trap cleanup EXIT
 
-      install -d -m755 "$temp/var/lib/kubernetes/secrets"
-      cp ./certs/ssl/* $temp/var/lib/kubernetes/secrets
-      echo "copied $(ls -1 $temp/var/lib/kubernetes/secrets | wc -l) certs to temp folder"
+      install -d -m755 "$temp/root"
+      cp ./certs/token $temp/root/token
+      echo "copied $(ls -1 $temp/root | wc -l) certs to temp folder"
   MACHINE="$1"
   if exists_in_list "${builtins.concatStringsSep " " (attrNames machines)}" " " "$MACHINE"; then
       echo "Machine exists"

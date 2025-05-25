@@ -122,109 +122,12 @@ with builtins;  with pkgs.lib;
     firewall.enable = false;
     nameservers = [ machines.kubeMaster.gateway ];
   };
-  services.kubernetes = {
-    # disabled kubernetes to focus on DNS and networking first
-    roles = [ "master" "node" ];
-    masterAddress = machines.kubeMaster.name;
-    apiserverAddress = "https://${machines.kubeMaster.name}:${toString
-    machines.kubeMaster.port}";
-    kubeconfig = {
-        certFile = "/var/lib/kubernetes/secrets/ca.pem";
-        keyFile = "/var/lib/kubernetes/secrets/ca-key.pem";
-        server = "https://${machines.kubeMaster.ip}";
-    };
-    pki = {
-      # we generate certs ourselves
-      enable = false;
-      # todo add extra san
-      # cfsslAPIExtraSANs = lib.attrNames machines;
-    };
-    apiserver = {
-      securePort = machines.kubeMaster.port;
-      advertiseAddress = machines.kubeMaster.ip;
-      serviceAccountSigningKeyFile =
-      "/var/lib/kubernetes/secrets/kubernetes-service-account-key.pem";
-      serviceAccountKeyFile = 
-      "/var/lib/kubernetes/secrets/kubernetes-service-account.pem";
-      tlsKeyFile = 
-      "/var/lib/kubernetes/secrets/kubernetes-key.pem";
-      tlsCertFile = 
-      "/var/lib/kubernetes/secrets/kubernetes.pem";
-      kubeletClientKeyFile = 
-      "/var/lib/kubernetes/secrets/kubelet-client-key.pem";
-      kubeletClientCertFile = 
-      "/var/lib/kubernetes/secrets/kubelet-client.pem";
-      # just need ip's here
-      etcd = {
-        servers = map (p: "https://${p.ip}:2379") (lib.attrValues
-            (lib.filterAttrs (_: machine:
-            machine ? node)
-            machines));
-        keyFile = concatStrings ["/var/lib/kubernetes/secrets/"
-        "etcd-client-${config.system.name}-key.pem"];
-        certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
-        "etcd-client-${config.system.name}.pem"];
-        caFile = concatStrings[ "/var/lib/kubernetes/secrets/"
-        "ca.pem"];
-      };
-    };
-    addons.dns.enable = true;
-    scheduler.kubeconfig = {
-        keyFile =
-            "/var/lib/kubernetes/secrets/kube-scheduler-key.pem";
-        certFile =
-            "/var/lib/kubernetes/secrets/kube-scheduler.pem";
-    };
-    controllerManager.kubeconfig = {
-        keyFile =
-            "/var/lib/kubernetes/secrets/kube-controller-manager-key.pem";
-        certFile =
-            "/var/lib/kubernetes/secrets/kube-controller-manager.pem";
-    };
-    kubelet = {
-        nodeIp = machines.${config.system.name}.ip;
-        enable = machines.${config.system.name}.node;
-        kubeconfig = {
-            keyFile =
-                "/var/lib/kubernetes/secrets/kubelet-${config.system.name}-key.pem";
-            certFile =
-                "/var/lib/kubernetes/secrets/kubelet-${config.system.name}.pem";
-            caFile = "/var/lib/kubernetes/secrets/ca.pem";
-            server = "10.13.13.3:6443";
-        };
-    };
-  };
-  services.etcd = {
-    enable = machines.${config.system.name}.etcd.enable;
-    name = config.system.name;
-    trustedCaFile = concatStrings ["/var/lib/kubernetes/secrets/"
-    "ca.pem"];
-    clientCertAuth = true;
-    keyFile = concatStrings ["/var/lib/kubernetes/secrets/"
-    "etcd-client-${config.system.name}-key.pem"];
-    certFile = concatStrings[ "/var/lib/kubernetes/secrets/"
-    "etcd-client-${config.system.name}.pem"];
-    # generator expressions from kubeNodesIP
-    peerClientCertAuth = false;
-    listenPeerUrls = concatLists [
-    (map (p: "https://${p}:2380")
-      [ machines.${config.system.name}.ip ])
-    [ "https://127.0.0.1:2380" ]
-  ];
-    listenClientUrls = concatLists [
-    (map (p: "https://${p}:2379")
-      [ machines.${config.system.name}.ip ])
-    [ "https://127.0.0.1:2379" ]
-  ];
-    advertiseClientUrls = (map (p: "https://${p}:2379")
-      [ machines.${config.system.name}.ip ]);
-    initialAdvertisePeerUrls = (map (p: "https://${p}:2380")
-      [ machines.${config.system.name}.ip ]);
-    initialCluster = attrValues
-    (mapAttrs (name: value: "${name}=https://${value.ip}:2380")
-      (lib.filterAttrs (_: machine:
-      machine ? node)
-        machines));
+  services.k3s = {
+      enable = true;
+      role = "server";
+      tokenFile = "/root/token";
+      clusterInit = machines.${config.system.name}.master;
+      serverAddr = "https://${machines.kubeMaster.ip}:6443";
   };
 
   virtualisation.docker.enable = true;

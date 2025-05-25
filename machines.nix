@@ -9,6 +9,7 @@ with builtins; with pkgs.lib;
     kubernetes.enable = true;
     etcd.enable = true;
     node = true;
+    master = true;
   };
   melchior-kube = {
     ip = "10.13.13.2";
@@ -18,6 +19,7 @@ with builtins; with pkgs.lib;
     kubernetes.enable = true;
     etcd.enable = true;
     node = true;
+    master = false;
   };
   gaspard-kube = {
     ip = "10.13.13.4";
@@ -27,9 +29,10 @@ with builtins; with pkgs.lib;
     kubernetes.enable = false;
     etcd.enable = false;
     node = false;
+    master = false;
   };
   kubeMaster = {
-      ip = "10.13.13.10";
+      ip = "10.13.13.3";
       gateway = "10.13.13.1";
       port = 6443;
       name = "kubernetes";
