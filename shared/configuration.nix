@@ -134,7 +134,7 @@ with builtins;  with pkgs.lib;
   services.k3s = {
       enable = true;
       role = "server";
-      tokenFile = "/root/token";
+      tokenFile = "/home/admin/token";
       clusterInit = machines.${config.system.name}.master;
       serverAddr = "https://${machines.kubeMaster.ip}:6443";
       extraFlags = [ "--debug" ];
