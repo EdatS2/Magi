@@ -40,6 +40,9 @@ with builtins;  with pkgs.lib;
     ethtool
     conntrack-tools
     iptables
+    kubernetes-helm
+    helmfile
+    helmsman
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];

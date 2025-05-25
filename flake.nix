@@ -25,7 +25,7 @@
         program = toString (writers.writeBash "show-cert" ''
           if [[ $# != 1 ]]; then
              echo "ERROR: Specify certificate argument"
-             exit 1
+             exit 
           fi
           CERT="$1"
           ${openssl}/bin/openssl x509 -text -noout -in "$CERT"
@@ -53,5 +53,19 @@
           ];
         }
         );
+        # shell to connect with your cluster and manage it
+    devShells.x86_64-linux.default = pkgs.mkShell {
+        packages = with pkgs; [
+            kubectl
+            helmfile
+            kubernetes-helm
+            kustomize
+        ];
+        shellHook = ''
+            export KUBECONFIG=./k3s.yaml
+
+        '';
+    };
+
     };
 }

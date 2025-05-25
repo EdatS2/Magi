@@ -1,1 +1,5 @@
 certs
+# don't want to push my cert to main
+k3s.yaml
+.direnv
+.envrc
