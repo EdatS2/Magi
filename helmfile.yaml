@@ -1,0 +1,28 @@
+repositories:
+- name: prometheus-community
+  url: https://prometheus-community.github.io/helm-charts
+- name: metallb
+  url: https://metallb.github.io/metallb
+- name: longhorn
+  url: https://charts.longhorn.io
+
+releases:
+  # metrics
+- name: prom-norbac-ubuntu
+  namespace: prometheus
+  chart: prometheus-community/prometheus
+  set:
+  - name: rbac.create
+    value: false
+
+  # load balancer
+- name: metallb
+  namespace: metallb-system
+  chart: metallb/metallb
+
+#   #Storage
+# - name: longhorn
+#   namespace: longhorn-system
+  # chart: longhorn/longhorn
+
+

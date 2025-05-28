@@ -35,6 +35,27 @@
         type = "app";
         program = import ./utils/deploy.nix pkgs machines;
       };
+      apps.update = {
+        type= "app";
+        program = toString (writers.writeBash "update" ''
+          if [[ $# != 1 ]]; then
+             echo "ERROR: Specify machine argument"
+             exit 
+          fi
+       # Get the IP address of the specified machine
+            case $1 in
+                ${concatStringsSep "\n" (attrValues
+                (mapAttrs (machineName: machine: ''
+                ${machineName}) IP="${machine.localIp}";;
+                '') (filterAttrs(_: machine: machine ? node)
+                machines)))}
+                *) echo "Not a node, ROUTER is not a valid target"; exit 1 ;;
+            esac
+            echo "Target at $IP"
+          nixos-rebuild switch --flake "$PWD#$1" --target-host root@$IP
+          exit 1
+        '');
+      };
       nixosConfigurations = genAttrs (attrNames machines)
         (name: nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
@@ -58,9 +79,15 @@
         packages = with pkgs; [
             kubectl
             helmfile
-            kubernetes-helm
             kustomize
-        ];
+            k9s
+        ] ++
+        [(wrapHelm kubernetes-helm {
+            plugins = with pkgs.kubernetes-helmPlugins; [
+                helm-diff
+                helm-git
+            ];
+        })];
         shellHook = ''
             export KUBECONFIG=./k3s.yaml
 

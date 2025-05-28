@@ -43,6 +43,10 @@ with builtins;  with pkgs.lib;
     kubernetes-helm
     helmfile
     helmsman
+    cifs-utils
+    nfs-utils
+    nftables
+    openiscsi
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
@@ -125,15 +129,22 @@ with builtins;  with pkgs.lib;
     firewall = {
         allowedTCPPorts = [ 
         22
-        6443
-        2379
-        2380
+        6443 #apiserver
+        2379 #etcd
+        2380 #etcd
+        7946 #metallb speaker
         ];
         allowedUDPPorts = [ 8472 ];
 
     };
     nameservers = [ machines.kubeMaster.gateway ];
   };
+    # Fixes for longhorn
+  systemd.tmpfiles.rules = [
+    "L+ /usr/local/bin - - - - /run/current-system/sw/bin/"
+  ];
+  virtualisation.docker.logDriver = "json-file";
+
   services.k3s = {
       enable = true;
       role = "server";
@@ -144,6 +155,11 @@ with builtins;  with pkgs.lib;
       extraFlags = [ 
       "--debug" 
       "--advertise-address=${machines.${config.system.name}.ip}"
+      "--node-ip=${machines.${config.system.name}.ip}"
+      "--node-external-ip=${machines.${config.system.name}.ip}"
+      "--disable servicelb"
+      "--disable traefik"
+      "--disable local-storage"
       ];
   };
 
