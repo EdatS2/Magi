@@ -133,8 +133,12 @@ with builtins;  with pkgs.lib;
         2379 #etcd
         2380 #etcd
         7946 #metallb speaker
+        179 #BGP
+        10250 #kubernetes metrics server
         ];
-        allowedUDPPorts = [ 8472 ];
+        allowedUDPPorts = [ 
+        8472 
+        ];
 
     };
     nameservers = [ machines.kubeMaster.gateway ];
@@ -145,6 +149,11 @@ with builtins;  with pkgs.lib;
   ];
   virtualisation.docker.logDriver = "json-file";
 
+  services.tailscale.enable = true;
+  services.openiscsi = {
+    enable = true;
+    name = "iqn.2016-04.com.open-iscsi:${config.system.name}";
+  };
   services.k3s = {
       enable = true;
       role = "server";

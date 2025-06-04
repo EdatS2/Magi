@@ -6,16 +6,7 @@ metadata:
   namespace: metallb-system
 spec:
   addresses:
-  - 10.13.13.20-10.13.13.255
----
-apiVersion: metallb.io/v1beta1
-kind: IPAddressPool
-metadata:
-  name: home-pool
-  namespace: metallb-system
-spec:
-  addresses:
-  - 192.168.88.200-192.168.88.255
+  - 10.13.13.10-10.13.13.200
 ---
 apiVersion: metallb.io/v1beta2
 kind: BGPPeer
@@ -24,7 +15,7 @@ metadata:
   namespace: metallb-system
 spec:
   myASN: 65000
-  peerASN: 65000
+  peerASN: 65001
   peerAddress: 10.13.13.1
 ---
 apiVersion: metallb.io/v1beta1
@@ -32,5 +23,8 @@ kind: BGPAdvertisement
 metadata:
   name: mikrotik-advertisment
   namespace: metallb-system
+spec:
+  ipAddressPools:
+    - vlan-pool
 ---
 

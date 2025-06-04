@@ -81,6 +81,7 @@
             helmfile
             kustomize
             k9s
+            apacheHttpd
         ] ++
         [(wrapHelm kubernetes-helm {
             plugins = with pkgs.kubernetes-helmPlugins; [
@@ -90,7 +91,6 @@
         })];
         shellHook = ''
             export KUBECONFIG=./k3s.yaml
-
         '';
     };
 
