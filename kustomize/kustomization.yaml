@@ -3,6 +3,9 @@ kind: Kustomization
 resources:
 - ./metallb/pool.yaml
 - ./prometheus/longhorn.yaml
+- ./cert-manager/issuer.yaml
+- ./ingress/nginx-internal.yaml
+- ./secret/cloudflare.yaml
 labels:
 - includeSelectors: true
   pairs:

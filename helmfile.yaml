@@ -9,6 +9,8 @@ repositories:
   url: https://kubernetes.github.io/ingress-nginx
 - name: grafana
   url: https://grafana.github.io/helm-charts
+- name: jetstack
+  url: https://charts.jetstack.io
 
 releases:
   # load balancer
@@ -16,12 +18,21 @@ releases:
   namespace: metallb-system
   chart: metallb/metallb
 
+  # ingress
 - name: nginx-ingress
   namespace: nginx-system
   chart: ingress-nginx/ingress-nginx
   set:
     - name: controller.replicaCount
       value: 2
+
+  # certmanager
+- name: cert-manager
+  namespace: nginx-system
+  chart: jetstack/cert-manager
+  set:
+    - name: crds.enabled
+      value: true
 
 #   #Storage
 - name: longhorn
@@ -39,11 +50,4 @@ releases:
       value: "LoadBalancer"
     - name: grafana.service.loadBalancerIP
       value: 10.13.13.15
-    - name: grafana.ingress.enabled
-      value: true
-    - name: grafana.ingress.hosts
-      values: 
-        - grafana.salverdaserver.nl
-    - name: grafana.ingress.ingressClassName
-      value: nginx
 
