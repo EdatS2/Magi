@@ -5,6 +5,7 @@ resources:
 - ./prometheus/longhorn.yaml
 - ./cert-manager/issuer.yaml
 - ./ingress/nginx-internal.yaml
+- ./ingress/configmap.yaml
 - ./secret/cloudflare.yaml
 labels:
 - includeSelectors: true

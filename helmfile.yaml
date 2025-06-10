@@ -11,6 +11,10 @@ repositories:
   url: https://grafana.github.io/helm-charts
 - name: jetstack
   url: https://charts.jetstack.io
+- name: wg-easy
+  url: https://helm-charts.rm3l.org
+- name: external-dns
+  url:  https://kubernetes-sigs.github.io/external-dns/
 
 releases:
   # load balancer
@@ -24,7 +28,15 @@ releases:
   chart: ingress-nginx/ingress-nginx
   set:
     - name: controller.replicaCount
-      value: 2
+      value: 2 
+    - name: controller.service.loadBalancerIP
+      value: 10.13.13.10
+
+- name: external-dns
+  namespace: nginx-system
+  chart: external-dns/external-dns
+  values:
+    - ./values/dns.values.yaml
 
   # certmanager
 - name: cert-manager
@@ -45,9 +57,20 @@ releases:
 - name: kube-prometheus-stack
   namespace: monitoring
   chart: prometheus-community/kube-prometheus-stack
-  set:
-    - name: grafana.service.type
-      value: "LoadBalancer"
-    - name: grafana.service.loadBalancerIP
-      value: 10.13.13.15
+  version: 73.0.0
+  values:
+    - ./values/grafana.values.yaml
 
+- name: loki-grafana
+  namespace: monitoring
+  chart: grafana/loki
+  values:
+    - ./values/loki.values.yaml
+
+    #vpn
+- name: wg-easy
+  namespace: vpn
+  chart: wg-easy/wg-easy
+  version: 0.2.0
+  values:
+    - ./values/wg-easy.values.yaml

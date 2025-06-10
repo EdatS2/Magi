@@ -127,7 +127,10 @@ with builtins;  with pkgs.lib;
       prefixLength = 24;
     }];
     firewall = {
+        enable = false;
         allowedTCPPorts = [ 
+        80
+        443
         22
         6443 #apiserver
         2379 #etcd
@@ -137,6 +140,8 @@ with builtins;  with pkgs.lib;
         10250 #kubernetes metrics server
         ];
         allowedUDPPorts = [ 
+        80
+        443
         8472 
         ];
 

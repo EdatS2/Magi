@@ -48,3 +48,28 @@ spec:
             name: longhorn-frontend
             port:
               number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod" # Or your certificate issuer
+  name: wg-easy
+  namespace: vpn
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: wg.salverdaserver.nl
+      http:
+        paths:
+          - backend:
+              service:
+                name: wg-easy-http
+                port: 
+                  name: http
+            path: /
+            pathType: Prefix
+  tls:
+    - hosts:
+        - wg.salverdaserver.nl
+      secretName: wg-easy-tls
