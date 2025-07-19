@@ -11,6 +11,16 @@
     , ...
     }:
     let
+      helmfile_plugins = with pkgs; wrapHelm kubernetes-helm {
+        plugins = with pkgs.kubernetes-helmPlugins; [
+          helm-secrets
+          helm-diff
+          helm-git
+        ];
+      };
+      helmfile_override = pkgs.helmfile-wrapped.override {
+          inherit (helmfile_plugins) pluginsDir;
+      };
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
       machines = import ./machines.nix pkgs;
     in
@@ -78,17 +88,22 @@
     devShells.x86_64-linux.default = pkgs.mkShell {
         packages = with pkgs; [
             kubectl
-            helmfile
             kustomize
             k9s
             apacheHttpd
+            sops
         ] ++
         [(wrapHelm kubernetes-helm {
             plugins = with pkgs.kubernetes-helmPlugins; [
                 helm-diff
                 helm-git
+                helm-secrets
             ];
-        })];
+        })] ++
+        [
+            helmfile_plugins
+            helmfile_override
+        ];
         shellHook = ''
             export KUBECONFIG=./k3s.yaml
         '';

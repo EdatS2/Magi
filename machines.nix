@@ -21,13 +21,11 @@ with builtins; with pkgs.lib;
     node = true;
     master = false;
   };
-  gaspard-kube = {
+  ramiel = {
     ip = "10.13.13.4";
-    #placeholder
     localIp = "192.168.88.111";
-    interface = "ens18";
-    disk = "/dev/sda";
-    #node not yet created
+    interface = "eno1";
+    disk = "/dev/nvme0n1";
     kubernetes.enable = true;
     etcd.enable = true;
     node = true;

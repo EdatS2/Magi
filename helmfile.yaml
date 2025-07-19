@@ -15,6 +15,8 @@ repositories:
   url: https://helm-charts.rm3l.org
 - name: external-dns
   url:  https://kubernetes-sigs.github.io/external-dns/
+- name: goauthentik
+  url: https://charts.goauthentik.io/
 
 releases:
   # load balancer
@@ -31,6 +33,12 @@ releases:
       value: 2 
     - name: controller.service.loadBalancerIP
       value: 10.13.13.10
+    - name: controller.enableSnippets
+      value: true
+    - name: controller.allowSnippetAnnotations
+      value: true
+    - name: controller.config.annotations-risk-level
+      value: critical
 
 - name: external-dns
   namespace: nginx-system
@@ -74,3 +82,12 @@ releases:
   version: 0.2.0
   values:
     - ./values/wg-easy.values.yaml
+
+- name: authentik
+  namespace: auth
+  chart: goauthentik/authentik
+  version: 2025.6.1
+  values:
+    - ./values/auth.values.yaml
+  secrets:
+    - ./secrets/auth.yaml

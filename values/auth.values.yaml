@@ -1,0 +1,33 @@
+postgresql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: true
+      storageClass: longhorn
+      accessModes:
+        - ReadWriteOnce
+      size: 1Gi
+      finalizers:
+        - kubernetes.io/pvc-protection
+
+authentik:
+  # This sends anonymous usage-data, stack traces on errors and
+  # performance data to authentik.error-reporting.a7k.io, and is fully opt-in
+  log_level: trace
+  error_reporting:
+    enabled: false
+
+server:
+  ingress:
+    tls:
+    - hosts:
+      - auth.salverdaserver.nl
+      secretName: auth-tls
+    enabled: false
+    ingressClassName: nginx
+    hosts:
+      - auth.salverdaserver.nl
+
+redis:
+  enabled: true
+

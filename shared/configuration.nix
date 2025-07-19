@@ -127,7 +127,7 @@ with builtins;  with pkgs.lib;
       prefixLength = 24;
     }];
     firewall = {
-        enable = false;
+        enable = true;
         allowedTCPPorts = [ 
         80
         443
@@ -137,6 +137,7 @@ with builtins;  with pkgs.lib;
         2380 #etcd
         7946 #metallb speaker
         179 #BGP
+        9099 #HEALTH check
         10250 #kubernetes metrics server
         ];
         allowedUDPPorts = [ 
@@ -180,9 +181,13 @@ with builtins;  with pkgs.lib;
   virtualisation.docker.enable = true;
   users.users.admin = {
     isNormalUser = true;
-    hashedPassword = "$6$mtwy4csazokFBG0W$JRlXuJlVToMHFDEshNZeKbooow0lV9xPqZJuWsdkRUT3dQtbpShB82IUgunO/g6DWsLHDbzXv.fJExJXgvrzq0";
+    hashedPassword =
+    "$6$/yVriAI3PtuzlZ8y$cx2HNFZ43EU/bNbT36shbepwXWJxbI2/hjm9hsKCR7sf7Yldspr7xswDwzTZzma69QDzNsQHMMVTjFDC66XI1/";
     extraGroups = [ "wheel" "docker" "kubernetes" ];
     shell = pkgs.zsh;
+    openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAPsp/GP+FOMXJmr34gO5055gqvlAF7Q/QK72XXBIa6O tadesalverda@outlook.com"
+      ];
   };
 
   users.users.root.openssh.authorizedKeys.keys = [

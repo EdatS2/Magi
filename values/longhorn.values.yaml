@@ -356,11 +356,11 @@ defaultSettings:
 # -- Setting that allows you to update the default backupstore.
 defaultBackupStore:
   # -- Endpoint used to access the default backupstore. (Options: "NFS", "CIFS", "AWS", "GCP", "AZURE")
-  backupTarget: ~
+  backupTarget: cifs://192.168.88.16/longhorn
   # -- Name of the Kubernetes secret associated with the default backup target.
-  backupTargetCredentialSecret: ~
+  backupTargetCredentialSecret: cifs-secret
   # -- Number of seconds that Longhorn waits before checking the default backupstore for new backups. The default value is "300". When the value is "0", polling is disabled.
-  pollInterval: ~
+  pollInterval: 0
 privateRegistry:
   # -- Setting that allows you to create a private registry secret.
   createSecret: ~

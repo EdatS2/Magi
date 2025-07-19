@@ -12,3 +12,16 @@ grafana:
     size: 20Gi
     finalizers:
       - kubernetes.io/pvc-protection
+
+prometheus:
+  prometheusSpec:
+    retention: 3d
+    replicas: 1
+    storageSpec: 
+     volumeClaimTemplate:
+       spec:
+         storageClassName: longhorn
+         accessModes: ["ReadWriteOnce"]
+         resources:
+           requests:
+             storage: 20Gi
