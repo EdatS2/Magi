@@ -17,6 +17,14 @@ repositories:
   url:  https://kubernetes-sigs.github.io/external-dns/
 - name: goauthentik
   url: https://charts.goauthentik.io/
+- name: postgreSQL
+  url: registry-1.docker.io/bitnamicharts
+  oci: true
+- name: pgadmin
+  url: https://helm.runix.net
+- name: immich
+  url: ghcr.io/immich-app/immich-charts
+  oci: true
 
 releases:
   # load balancer
@@ -43,6 +51,7 @@ releases:
 - name: external-dns
   namespace: nginx-system
   chart: external-dns/external-dns
+  version: 1.17.0
   values:
     - ./values/dns.values.yaml
 
@@ -68,20 +77,22 @@ releases:
   version: 73.0.0
   values:
     - ./values/grafana.values.yaml
+  secrets:
+    - ./secrets/grafana.yaml
 
-- name: loki-grafana
-  namespace: monitoring
-  chart: grafana/loki
-  values:
-    - ./values/loki.values.yaml
+# - name: loki-grafana
+#   namespace: monitoring
+#   chart: grafana/loki
+#   values:
+#     - ./values/loki.values.yaml
 
     #vpn
-- name: wg-easy
-  namespace: vpn
-  chart: wg-easy/wg-easy
-  version: 0.2.0
-  values:
-    - ./values/wg-easy.values.yaml
+# - name: wg-easy
+#   namespace: vpn
+#   chart: wg-easy/wg-easy
+#   version: 0.2.0
+#   values:
+#     - ./values/wg-easy.values.yaml
 
 - name: authentik
   namespace: auth
@@ -91,3 +102,28 @@ releases:
     - ./values/auth.values.yaml
   secrets:
     - ./secrets/auth.yaml
+
+- name: postgres
+  namespace: database
+  chart: postgreSQL/postgresql
+  version: 16.7.20
+  values:
+    - ./values/postgres.values.yaml
+  secrets:
+    - ./secrets/postgress.yaml
+
+- name: pgadmin
+  namespace: database
+  chart: pgadmin/pgadmin4
+  version: 1.47.0
+  values:
+    - ./values/pgadmin.values.yaml
+  secrets:
+    - ./secrets/pgadmin.yaml
+
+- name: immich
+  namespace: applications
+  chart: immich/immich
+  version: 0.9.3
+  values:
+    - ./values/immich.values.yaml

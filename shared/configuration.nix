@@ -126,8 +126,15 @@ with builtins;  with pkgs.lib;
       address = machines.${config.system.name}.ip;
       prefixLength = 24;
     }];
+    interfaces.kubernetes.ipv4.routes = [
+        {
+            address = "192.168.88.0";
+            prefixLength = 24;
+            via = "10.13.13.1";
+        }
+    ];
     firewall = {
-        enable = true;
+        enable = false;
         allowedTCPPorts = [ 
         80
         443

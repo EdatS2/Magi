@@ -8,6 +8,7 @@ resources:
 - ./ingress/configmap.yaml
 - ./secret/cloudflare.yaml
 - ./secret/longhorn_backup.yaml
+- ./immich/pvc.yaml
 labels:
 - includeSelectors: true
   pairs:

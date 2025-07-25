@@ -23,7 +23,7 @@ with builtins; with pkgs.lib;
   };
   ramiel = {
     ip = "10.13.13.4";
-    localIp = "192.168.88.111";
+    localIp = "192.168.88.102";
     interface = "eno1";
     disk = "/dev/nvme0n1";
     kubernetes.enable = true;

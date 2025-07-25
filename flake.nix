@@ -56,7 +56,7 @@
             case $1 in
                 ${concatStringsSep "\n" (attrValues
                 (mapAttrs (machineName: machine: ''
-                ${machineName}) IP="${machine.localIp}";;
+                ${machineName}) IP="${machine.ip}";;
                 '') (filterAttrs(_: machine: machine ? node)
                 machines)))}
                 *) echo "Not a node, ROUTER is not a valid target"; exit 1 ;;
@@ -89,6 +89,7 @@
         packages = with pkgs; [
             kubectl
             kustomize
+            kustomize-sops
             k9s
             apacheHttpd
             sops
