@@ -7,14 +7,13 @@
 env:
   REDIS_HOSTNAME: '{{ printf "%s-redis-master" .Release.Name }}'
   DB_HOSTNAME: "postgres-postgresql.database.svc.cluster.local"
-  DB_USERNAME: "{{ .Values.postgresql.global.postgresql.auth.username }}"
+  DB_USERNAME: "Immich"
   DB_DATABASE_NAME: "immich"
   # -- You should provide your own secret outside of this helm-chart and use `postgresql.global.postgresql.auth.existingSecret` to provide credentials to the postgresql instance
-  DB_PASSWORD: "{{ .Values.postgresql.global.postgresql.auth.password }}"
   IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
 
 image:
-  tag: v1.136.0
+  tag: v1.138.1
 
 immich:
   metrics:
@@ -36,6 +35,16 @@ immich:
     storageTemplate:
       enabled: true
       template: "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}"
+    oauth:
+      enabled: true
+      scope: openid email profile
+      signingAlgorithm: RS256
+      storageLabelClaim: preferred_username
+      defaultStorageQuota: 20
+      autoLaunch: true
+    passwordLogin: 
+      enabled: false
+
 
 # Dependencies
 
@@ -83,6 +92,7 @@ server:
         # proxy-body-size is set to 0 to remove the body limit on file uploads
         nginx.ingress.kubernetes.io/proxy-body-size: "0"
         cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      ingressClassName: nginx
       hosts:
         - host: immich.salverdaserver.nl
           paths:

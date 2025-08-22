@@ -25,6 +25,12 @@ repositories:
 - name: immich
   url: ghcr.io/immich-app/immich-charts
   oci: true
+- name: ddns
+  url: https://cloudflare-ddns.aureum.cloud
+- name: nextcloud
+  url: https://nextcloud.github.io/helm
+- name: multus
+  url: https://rke2-charts.rancher.io
 
 releases:
   # load balancer
@@ -127,3 +133,27 @@ releases:
   version: 0.9.3
   values:
     - ./values/immich.values.yaml
+  secrets:
+    - ./secrets/immich.yaml
+
+- name: ddns
+  namespace: applications
+  chart: ddns/cloudflare-ddns
+  version: 1.0.3
+  secrets:
+    - ./secrets/ddns.yaml
+
+- name: nextcloud
+  namespace: applications
+  chart: nextcloud/nextcloud
+  version: 7.0.0
+  values:
+    - ./values/nextcloud.values.yaml
+  secrets:
+    - ./secrets/cloud.yaml
+
+- name: multus
+  namespace: kube-system
+  chart: multus/rke2-multus
+  values:
+    - ./values/multus.values.yaml

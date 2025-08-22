@@ -17,7 +17,6 @@ with builtins;  with pkgs.lib;
     efiInstallAsRemovable = true;
   };
   # boot.loader.efi.canTouchEfiVariables = true;
-  services.openssh.enable = true;
 
   environment.systemPackages = with pkgs; map lib.lowPrio [
     curl
@@ -121,9 +120,17 @@ with builtins;  with pkgs.lib;
         # Kijk in de installer welke interface het gaat worden en stel dat dan
         # goed in.
       };
+      longhorn = {
+          id = 500;
+          interface = machines.${config.system.name}.longhornInterface;
+      };
     };
     interfaces.kubernetes.ipv4.addresses = [{
       address = machines.${config.system.name}.ip;
+      prefixLength = 24;
+    }];
+    interfaces.longhorn.ipv4.addresses = [{
+      address = machines.${config.system.name}.longhornIP;
       prefixLength = 24;
     }];
     interfaces.kubernetes.ipv4.routes = [
@@ -156,6 +163,15 @@ with builtins;  with pkgs.lib;
     };
     nameservers = [ machines.kubeMaster.gateway ];
   };
+  services.openssh = {
+    enable = true;
+    settings = {
+      PasswordAuthentication = false;
+      AllowUsers = [ "admin" "root"];
+      PermitRootLogin = "yes";
+    };
+  };
+
     # Fixes for longhorn
   systemd.tmpfiles.rules = [
     "L+ /usr/local/bin - - - - /run/current-system/sw/bin/"
@@ -184,6 +200,19 @@ with builtins;  with pkgs.lib;
       "--disable local-storage"
       ];
   };
+  services.xserver.videoDrivers = if (machines.${config.system.name}.nvidia)
+  then [ 
+    "nvidia"
+  ] else
+  [];
+  nixpkgs.config.allowUnfree = if (machines.${config.system.name}.nvidia ==
+  true) then true else false;
+  hardware.graphics.enable = true;
+  hardware.nvidia = {
+        powerManagement.enable = true;
+        powerManagement.finegrained = false;
+        open = true;
+      }; 
 
   virtualisation.docker.enable = true;
   users.users.admin = {

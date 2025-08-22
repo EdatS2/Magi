@@ -1,0 +1,9 @@
+controller:
+    replicaCount: 2 
+    service.loadBalancerIP: 10.13.13.10
+    enableSnippets: true
+    allowSnippetAnnotations: true
+    config:
+      annotations-risk-level: critical
+
+    
