@@ -46,7 +46,10 @@ with builtins;  with pkgs.lib;
     nfs-utils
     nftables
     openiscsi
+    ollama-cuda
   ];
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   programs.zsh = {
@@ -205,6 +208,15 @@ with builtins;  with pkgs.lib;
     "nvidia"
   ] else
   [];
+  services.ollama = if (machines.${config.system.name}.nvidia ) then {
+        enable = true;
+        host = machines.${config.system.name}.ip;
+        package = pkgs.ollama-cuda;
+        acceleration = "cuda";
+  } else
+  {
+        enable = false;
+  };
   nixpkgs.config.allowUnfree = if (machines.${config.system.name}.nvidia ==
   true) then true else false;
   hardware.graphics.enable = true;

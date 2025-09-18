@@ -31,6 +31,8 @@ repositories:
   url: https://nextcloud.github.io/helm
 - name: multus
   url: https://rke2-charts.rancher.io
+- name: openwebui
+  url: https://open-webui.github.io/helm-charts
 
 releases:
   # load balancer
@@ -53,6 +55,8 @@ releases:
       value: true
     - name: controller.config.annotations-risk-level
       value: critical
+    - name: controller.config.use-forwarded-headers
+      value: true
 
 - name: external-dns
   namespace: nginx-system
@@ -86,11 +90,14 @@ releases:
   secrets:
     - ./secrets/grafana.yaml
 
-# - name: loki-grafana
-#   namespace: monitoring
-#   chart: grafana/loki
-#   values:
-#     - ./values/loki.values.yaml
+- name: openwebui
+  namespace: applications
+  chart: openwebui/open-webui
+  version: 8.4.0
+  values: 
+    - ./values/webui.values.yaml
+  secrets:
+    - ./secrets/webui.yaml
 
     #vpn
 # - name: wg-easy
