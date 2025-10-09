@@ -46,6 +46,8 @@ with builtins;  with pkgs.lib;
     nfs-utils
     nftables
     openiscsi
+    libnfs
+    smartmontools
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
