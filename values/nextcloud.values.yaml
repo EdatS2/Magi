@@ -77,7 +77,7 @@ phpClientHttpsFix:
 nextcloud:
   host: cloud.salverdaserver.nl
   username: admin
-  password: changeme
+  password: changemelong
   ## Use an existing secret
   existingSecret:
     enabled: false
@@ -175,6 +175,13 @@ nextcloud:
          'OC\Preview\MarkDown',
          'OC\Preview\PDF'
        ),
+        'forwarded_for_headers' => array('CF_Connecting_IP', 'X_forwarded_for'),
+        'overwriteprotocol' => 'https',
+        'default_phone_region' => 'NL',
+        'overwrite.cli.url' => 'cloud.salverdaserver.nl',
+        'ServerName' => 'cloud.salverdaserver.nl',
+        'auth.webauthn.enabled' => false,
+        'trusted_proxies' => array('10.42.0.1/24', '10.13.13.10'),
      );
   proxy.config.php: |-
     <?php
@@ -185,7 +192,6 @@ nextcloud:
         'overwrite.cli.url' => 'cloud.salverdaserver.nl',
       );
 
-  # 'servername' => 'cloud.salverdaserver.nl',
   # Hooks for auto configuration
   # Here you could write small scripts which are placed in `/docker-entrypoint-hooks.d/<hook-name>/helm.sh`
   # ref: https://github.com/nextcloud/docker?tab=readme-ov-file#auto-configuration-via-hook-folders
@@ -435,7 +441,7 @@ collabora:
 ## ref: https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/background_jobs_configuration.html#cron
 ##
 cronjob:
-  enabled: false
+  enabled: true
 
   ## Cronjob sidecar resource requests and limits
   ## ref: http://kubernetes.io/docs/user-guide/compute-resources/

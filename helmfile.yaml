@@ -27,12 +27,12 @@ repositories:
   oci: true
 - name: ddns
   url: https://cloudflare-ddns.aureum.cloud
-- name: nextcloud
-  url: https://nextcloud.github.io/helm
 - name: multus
   url: https://rke2-charts.rancher.io
 - name: openwebui
   url: https://open-webui.github.io/helm-charts
+- name: searxng
+  url: https://charts.kubito.dev
 
 releases:
   # load balancer
@@ -57,6 +57,8 @@ releases:
       value: critical
     - name: controller.config.use-forwarded-headers
       value: true
+    - name: controller.config.real_ip_header
+      value: CF-Connecting-IP
 
 - name: external-dns
   namespace: nginx-system
@@ -77,6 +79,7 @@ releases:
 - name: longhorn
   namespace: longhorn-system
   chart: longhorn/longhorn
+  version: 1.9.1
   values:
     - ./values/longhorn.values.yaml
 
@@ -93,7 +96,7 @@ releases:
 - name: openwebui
   namespace: applications
   chart: openwebui/open-webui
-  version: 8.4.0
+  version: 8.8.0
   values: 
     - ./values/webui.values.yaml
   secrets:
@@ -150,14 +153,14 @@ releases:
   secrets:
     - ./secrets/ddns.yaml
 
-- name: nextcloud
-  namespace: applications
-  chart: nextcloud/nextcloud
-  version: 7.0.0
-  values:
-    - ./values/nextcloud.values.yaml
-  secrets:
-    - ./secrets/cloud.yaml
+# - name: nextcloud
+#   namespace: applications
+#   chart: nextcloud/nextcloud
+#   version: 7.0.0
+#   values:
+#     - ./values/nextcloud.values.yaml
+#   secrets:
+#     - ./secrets/cloud.yaml
 
 - name: multus
   namespace: kube-system

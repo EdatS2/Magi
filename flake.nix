@@ -93,6 +93,7 @@
             k9s
             apacheHttpd
             sops
+            jq
         ] ++
         [(wrapHelm kubernetes-helm {
             plugins = with pkgs.kubernetes-helmPlugins; [

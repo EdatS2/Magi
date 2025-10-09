@@ -46,7 +46,6 @@ with builtins;  with pkgs.lib;
     nfs-utils
     nftables
     openiscsi
-    ollama-cuda
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -213,6 +212,14 @@ with builtins;  with pkgs.lib;
         host = machines.${config.system.name}.ip;
         package = pkgs.ollama-cuda;
         acceleration = "cuda";
+  } else
+  {
+        enable = false;
+  };
+  services.llama-cpp = if (machines.${config.system.name}.nvidia ) then {
+        enable = true;
+        host = machines.${config.system.name}.ip;
+        model = "-hf mradermacher/bge-reranker-v2-gemma-i1-GGUF:Q4_K_M";
   } else
   {
         enable = false;
