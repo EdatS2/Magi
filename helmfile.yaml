@@ -13,8 +13,6 @@ repositories:
   url: https://charts.jetstack.io
 - name: wg-easy
   url: https://helm-charts.rm3l.org
-- name: external-dns
-  url:  https://kubernetes-sigs.github.io/external-dns/
 - name: goauthentik
   url: https://charts.goauthentik.io/
 - name: postgreSQL
@@ -33,6 +31,8 @@ repositories:
   url: https://open-webui.github.io/helm-charts
 - name: searxng
   url: https://charts.kubito.dev
+- name: miniflux
+  url: https://charts.gabe565.com
 
 releases:
   # load balancer
@@ -59,13 +59,6 @@ releases:
       value: true
     - name: controller.config.real_ip_header
       value: CF-Connecting-IP
-
-- name: external-dns
-  namespace: nginx-system
-  chart: external-dns/external-dns
-  version: 1.17.0
-  values:
-    - ./values/dns.values.yaml
 
   # certmanager
 - name: cert-manager
@@ -161,6 +154,14 @@ releases:
 #     - ./values/nextcloud.values.yaml
 #   secrets:
 #     - ./secrets/cloud.yaml
+- name: miniflux
+  namespace: applications
+  chart: miniflux/miniflux
+  version: 0.9.2
+  values:
+    - ./values/miniflux.values.yaml
+  secrets:
+    - ./secrets/miniflux.yaml
 
 - name: multus
   namespace: kube-system
