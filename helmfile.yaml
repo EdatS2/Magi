@@ -33,6 +33,8 @@ repositories:
   url: https://charts.kubito.dev
 - name: miniflux
   url: https://charts.gabe565.com
+- name: planka
+  url: http://plankanban.github.io/planka
 
 releases:
   # load balancer
@@ -162,6 +164,15 @@ releases:
     - ./values/miniflux.values.yaml
   secrets:
     - ./secrets/miniflux.yaml
+
+- name: planka
+  namespace: applications
+  chart: planka/planka
+  version: 1.0.5
+  values:
+    - ./values/planka.values.yaml
+  secrets:
+    - ./secrets/planka.yaml
 
 - name: multus
   namespace: kube-system
