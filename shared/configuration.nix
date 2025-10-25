@@ -48,6 +48,8 @@ with builtins;  with pkgs.lib;
     openiscsi
     libnfs
     smartmontools
+    isal
+    zlib
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
