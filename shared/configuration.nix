@@ -189,6 +189,19 @@ with builtins;  with pkgs.lib;
         themes = "!include_dir_merge_named themes";
       };
     };
+    package = pkgs.home-assistant.override {
+      extraPackages = python3Packages: with python3Packages; [
+        psycopg2
+        zlib-ng
+        isal
+      ];
+      extraComponents = [
+        "default_config"
+        "esphome"
+        "met"
+      ];
+    }
+    ;
   };
 
     # Fixes for longhorn
