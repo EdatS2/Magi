@@ -48,7 +48,6 @@ with builtins;  with pkgs.lib;
     openiscsi
     libnfs
     smartmontools
-    isal
     zlib
   ];
 
