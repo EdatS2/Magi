@@ -35,6 +35,5 @@ metadata:
 spec:
   ipAddressPools:
     - vlan-pool
-    - home-pool
 ---
 
