@@ -198,6 +198,10 @@ with builtins;  with pkgs.lib;
         "default_config"
         "esphome"
         "met"
+        "homeassistant_hardware"
+        "poah"
+        "androidtvremote2"
+        "librouteros"
       ];
     }
     ;
