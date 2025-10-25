@@ -177,7 +177,16 @@ with builtins;  with pkgs.lib;
   };
   services.home-assistant = {
     enable = machines.${config.system.name}.hass;
-
+    config = {
+      homeassistant = {
+        name = "Home";
+        unit_system = "metric";
+        time_zone = "UTC";
+      };
+      frontend = {
+        themes = "!include_dir_merge_named themes";
+      };
+    };
   };
 
     # Fixes for longhorn
