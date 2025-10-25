@@ -175,6 +175,10 @@ with builtins;  with pkgs.lib;
       PermitRootLogin = "yes";
     };
   };
+  services.home-assistant = {
+    enable = machines.${config.system.name}.hass;
+
+  };
 
     # Fixes for longhorn
   systemd.tmpfiles.rules = [
