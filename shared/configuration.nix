@@ -139,11 +139,11 @@ with builtins;  with pkgs.lib;
       prefixLength = 24;
     }];
     interfaces.kubernetes.ipv4.routes = [
-        {
-            address = "192.168.88.0";
-            prefixLength = 24;
-            via = "10.13.13.1";
-        }
+    {
+	    address = "192.168.88.0";
+	    prefixLength = 24;
+	    via = "10.13.13.1";
+    }
     ];
     firewall = {
         enable = false;
@@ -175,6 +175,11 @@ with builtins;  with pkgs.lib;
       AllowUsers = [ "admin" "root"];
       PermitRootLogin = "yes";
     };
+#j    listenAddresses = [{
+#	addr = machines.${config.system.name}.ip;
+#	port = 22;
+#
+#    }];
   };
   services.home-assistant = {
     enable = machines.${config.system.name}.hass;
@@ -183,9 +188,20 @@ with builtins;  with pkgs.lib;
         name = "Home";
         unit_system = "metric";
         time_zone = "UTC";
+	#server_host = machines.${config.system.name}.localIp;
       };
+      http = {
+	server_host = machines.${config.system.name}.localIp;
+
+	};
       frontend = {
         themes = "!include_dir_merge_named themes";
+      };
+      network = {
+	bind_interface = machines.${config.system.name}.interface;
+      };
+      zeroconf = {
+	interface = machines.${config.system.name}.interface;
       };
     };
     package = pkgs.home-assistant.override {
@@ -198,10 +214,11 @@ with builtins;  with pkgs.lib;
         "default_config"
         "esphome"
         "met"
-        "homeassistant_hardware"
-        "poah"
-        "androidtvremote2"
-        "librouteros"
+        "hardware"
+	"homeassistant_hardware"
+        "androidtv_remote"
+	"mikrotik"
+	"zha"
       ];
     }
     ;
