@@ -16,6 +16,10 @@ with builtins;  with pkgs.lib;
     efiSupport = true;
     efiInstallAsRemovable = true;
   };
+  # boot.zfs = {
+  #   enabled = machines.${config.system.name}.zfs;
+  #   boot.zfs.extraPools = [ "WDred" ];
+  # };
   # boot.loader.efi.canTouchEfiVariables = true;
 
   environment.systemPackages = with pkgs; map lib.lowPrio [
@@ -265,23 +269,23 @@ with builtins;  with pkgs.lib;
     "nvidia"
   ] else
   [];
-  services.ollama = if (machines.${config.system.name}.nvidia ) then {
-        enable = true;
-        host = machines.${config.system.name}.ip;
-        package = pkgs.ollama-cuda;
-        acceleration = "cuda";
-  } else
-  {
-        enable = false;
-  };
-  services.llama-cpp = if (machines.${config.system.name}.nvidia ) then {
-        enable = true;
-        host = machines.${config.system.name}.ip;
-        model = "-hf mradermacher/bge-reranker-v2-gemma-i1-GGUF:Q4_K_M";
-  } else
-  {
-        enable = false;
-  };
+  # services.ollama = if (machines.${config.system.name}.nvidia ) then {
+  #       enable = true;
+  #       host = machines.${config.system.name}.ip;
+  #       package = pkgs.ollama-cuda;
+  #       acceleration = "cuda";
+  # } else
+  # {
+  #       enable = false;
+  # };
+  # services.llama-cpp = if (machines.${config.system.name}.nvidia ) then {
+  #       enable = true;
+  #       host = machines.${config.system.name}.ip;
+  #       model = "-hf mradermacher/bge-reranker-v2-gemma-i1-GGUF:Q4_K_M";
+  # } else
+  # {
+  #       enable = false;
+  # };
   nixpkgs.config.allowUnfree = if (machines.${config.system.name}.nvidia ==
   true) then true else false;
   hardware.graphics.enable = true;

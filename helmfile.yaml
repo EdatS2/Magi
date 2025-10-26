@@ -35,6 +35,8 @@ repositories:
   url: https://charts.gabe565.com
 - name: planka
   url: http://plankanban.github.io/planka
+- name: bitwarden
+  url: https://gissilabs.github.io/charts
 
 releases:
   # load balancer
@@ -179,3 +181,12 @@ releases:
   chart: multus/rke2-multus
   values:
     - ./values/multus.values.yaml
+
+- name: vaultwarden
+  namespace: applications
+  chart: bitwarden/vaultwarden
+  version: 1.2.6
+  values:
+    - ./values/vault.values.yaml
+  secrets:
+    - ./secrets/vault.yaml
