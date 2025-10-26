@@ -51,7 +51,7 @@ with builtins;  with pkgs.lib;
     zlib
   ];
 
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+  #boot.kernelPackages = pkgs.linuxPackages_latest;
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   programs.zsh = {
@@ -140,16 +140,18 @@ with builtins;  with pkgs.lib;
     }];
     interfaces.kubernetes.ipv4.routes = [
     {
-	    address = "192.168.88.0";
-	    prefixLength = 24;
+	    address = "0.0.0.0";
+	    prefixLength = 0;
 	    via = "10.13.13.1";
     }
     ];
+    firewall.trustedInterfaces = [ "cni+" ];
     firewall = {
         enable = false;
         allowedTCPPorts = [ 
         80
         443
+	53
         22
         6443 #apiserver
         2379 #etcd
@@ -162,6 +164,7 @@ with builtins;  with pkgs.lib;
         allowedUDPPorts = [ 
         80
         443
+	53
         8472 
         ];
 
