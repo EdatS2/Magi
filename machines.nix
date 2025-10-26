@@ -14,6 +14,7 @@ with builtins; with pkgs.lib;
     master = true;
     nvidia = false;
     hass = false;
+    octo = true;
   };
   gaspard = {
     ip = "10.13.13.2";
@@ -28,6 +29,7 @@ with builtins; with pkgs.lib;
     master = false;
     nvidia = true;
     hass = false;
+    octo = false;
   };
   ramiel = {
     ip = "10.13.13.4";
@@ -42,6 +44,7 @@ with builtins; with pkgs.lib;
     master = false;
     nvidia = false;
     hass = true;
+    octo = false;
   };
   kubeMaster = {
       ip = "10.13.13.3";

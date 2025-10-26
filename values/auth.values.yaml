@@ -29,5 +29,5 @@ server:
       - auth.salverdaserver.nl
 
 redis:
-  enabled: false
+  enabled: true
 

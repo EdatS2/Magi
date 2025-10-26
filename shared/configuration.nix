@@ -184,6 +184,11 @@ with builtins;  with pkgs.lib;
 #
 #    }];
   };
+  services.octoprint = {
+    enable = machines.${config.system.name}.octo;
+    host = machines.${config.system.name}.ip;
+    plugins = plugins: with plugins; [ themeify stlviewer ];
+  };
   services.home-assistant = {
     enable = machines.${config.system.name}.hass;
     config = {
