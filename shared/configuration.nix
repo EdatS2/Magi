@@ -269,23 +269,24 @@ with builtins;  with pkgs.lib;
     "nvidia"
   ] else
   [];
-  # services.ollama = if (machines.${config.system.name}.nvidia ) then {
-  #       enable = true;
-  #       host = machines.${config.system.name}.ip;
-  #       package = pkgs.ollama-cuda;
-  #       acceleration = "cuda";
-  # } else
-  # {
-  #       enable = false;
-  # };
-  # services.llama-cpp = if (machines.${config.system.name}.nvidia ) then {
-  #       enable = true;
-  #       host = machines.${config.system.name}.ip;
-  #       model = "-hf mradermacher/bge-reranker-v2-gemma-i1-GGUF:Q4_K_M";
-  # } else
-  # {
-  #       enable = false;
-  # };
+  services.ollama = if (machines.${config.system.name}.nvidia ) then {
+	  enable = true;
+	  host = machines.${config.system.name}.ip;
+	  package = pkgs.ollama-cuda;
+	  acceleration = "cuda";
+  } else
+  {
+	  enable = false;
+  };
+  services.llama-cpp = if (machines.${config.system.name}.nvidia ) then {
+	  enable = true;
+	  host = machines.${config.system.name}.ip;
+	  model = "/home/llama-cpp/bge-Q6-K.gguf";
+	  package = pkgs.llama-cpp.override { cudaSupport = true;};
+  } else
+  {
+	  enable = false;
+  };
   nixpkgs.config.allowUnfree = if (machines.${config.system.name}.nvidia ==
   true) then true else false;
   hardware.graphics.enable = true;
