@@ -1,0 +1,20 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "salverda": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "salverda",
+      "options": {
+        "baseURL": "https://chat.salverdaserver.nl/api"
+      },
+      "models": {
+          "granite4:tiny-h": {
+              "name": "Granite"
+        },
+          "gemma3:12b": {
+            "name" : "Gemma"
+          }
+      }
+    }
+  }
+}
