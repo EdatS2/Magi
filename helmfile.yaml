@@ -93,7 +93,7 @@ releases:
 - name: openwebui
   namespace: applications
   chart: openwebui/open-webui
-  version: 8.14.0
+  version: 8.8.0
   values: 
     - ./values/webui.values.yaml
   secrets:
@@ -190,9 +190,3 @@ releases:
     - ./values/vault.values.yaml
   secrets:
     - ./secrets/vault.yaml
-
-- name: searxng
-  namespace: applications
-  chart: searxng/searxng
-  values:
-    - ./values/searxng.values.yaml

@@ -3,7 +3,6 @@ certs
 k3s.yaml
 .direnv
 .envrc
-.sops.yaml
 # dont want my cloudflare api key leaked plz
 secret
 configmap.yaml
