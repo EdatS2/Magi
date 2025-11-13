@@ -11,6 +11,10 @@
           "granite4:tiny-h": {
               "name": "Granite"
         },
+          "granite4:micro-h": {
+              "name": "Granite-micro",
+              "tool_call": true
+        },
           "gemma3:12b": {
             "name" : "Gemma"
           }

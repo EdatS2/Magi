@@ -11,13 +11,8 @@ with builtins;  with pkgs.lib;
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
     ./script.nix
-  ] ++ (
-  if (machines.${config.system.name}.nvidia)
-  then [ 
-    steam.nix
-  ] else
-  []
-  );
+    ./steam.nix
+    ];
   boot.loader.grub = {
     efiSupport = true;
     efiInstallAsRemovable = true;
