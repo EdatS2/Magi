@@ -32,7 +32,7 @@ tika:
   enabled: false
 
 # -- A list of Ollama API endpoints. These can be added in lieu of automatically installing the Ollama Helm chart, or in addition to it.
-ollamaUrls: [http://10.13.13.2:11434]
+ollamaUrls: [http://10.13.13.6:11434]
 
 # -- Disables taking Ollama Urls from `ollamaUrls`  list
 ollamaUrlsFromExtraEnv: false
