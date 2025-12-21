@@ -1,3 +1,5 @@
+## This is slightly outdated, it is currently k3s, cluster structure mostly accurate
+
 # NixOS K8S, N masters, N nodes, Stacked ETCD
 If those things mean anything to you, you already know what this repo does. It
 is an infrastructure as code (IaC) project focussed on achieving an easy way to
