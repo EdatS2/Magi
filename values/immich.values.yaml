@@ -4,16 +4,19 @@
 
 # These entries are shared between all the Immich components
 
-env:
-  REDIS_HOSTNAME: '{{ printf "%s-redis-master" .Release.Name }}'
-  DB_HOSTNAME: "postgres-postgresql.database.svc.cluster.local"
-  DB_USERNAME: "Immich"
-  DB_DATABASE_NAME: "immich"
-  # -- You should provide your own secret outside of this helm-chart and use `postgresql.global.postgresql.auth.existingSecret` to provide credentials to the postgresql instance
-  IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
+controllers:
+  main:
+    containers:
+      main:
+        env:
+          DB_HOSTNAME: "postgres-postgresql.database.svc.cluster.local"
+          DB_USERNAME: "Immich"
+          DB_DATABASE_NAME: "immich"
+          # -- You should provide your own secret outside of this helm-chart and use `postgresql.global.postgresql.auth.existingSecret` to provide credentials to the postgresql instance
+          IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
+        image:
+          tag: v2.3.1
 
-image:
-  tag: v2.0.0
 
 immich:
   metrics:
@@ -45,6 +48,16 @@ immich:
     passwordLogin: 
       enabled: false
 
+valkey:
+  enabled: true
+  controllers:
+    main:
+      containers:
+        main:
+         image:
+          repository: docker.io/valkey/valkey
+          tag: 8.0-alpine
+          pullPolicy: IfNotPresent
 
 # Dependencies
 
@@ -52,19 +65,17 @@ immich:
 # The postgres subchart is deprecated and will be removed in chart version 0.10.0
 # See https://github.com/immich-app/immich-charts/issues/149 for more detail.
 
-redis:
-  enabled: true
-  architecture: standalone
-  auth:
-    enabled: false
-
 # Immich components
 
 server:
   enabled: true
-  image:
-    repository: ghcr.io/immich-app/immich-server
-    pullPolicy: IfNotPresent
+  controllers:
+    main:
+      containers:
+        main:
+          image:
+            repository: ghcr.io/immich-app/immich-server
+            pullPolicy: IfNotPresent
   ingress:
     main:
       enabled: true
@@ -72,7 +83,7 @@ server:
         # proxy-body-size is set to 0 to remove the body limit on file uploads
         nginx.ingress.kubernetes.io/proxy-body-size: "0"
         cert-manager.io/cluster-issuer: "letsencrypt-prod"
-      ingressClassName: nginx
+      className: nginx
       hosts:
         - host: immich.salverdaserver.nl
           paths:
@@ -84,11 +95,15 @@ server:
 
 machine-learning:
   enabled: false
-  image:
-    repository: ghcr.io/immich-app/immich-machine-learning
-    pullPolicy: IfNotPresent
-  env:
-    TRANSFORMERS_CACHE: /cache
+  controllers:
+    main:
+      containers:
+        main:
+          image:
+            repository: ghcr.io/immich-app/immich-machine-learning
+            pullPolicy: IfNotPresent
+          env:
+            TRANSFORMERS_CACHE: /cache
   persistence:
     cache:
       enabled: true

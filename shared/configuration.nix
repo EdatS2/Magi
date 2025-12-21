@@ -197,6 +197,7 @@ with builtins;  with pkgs.lib;
   services.home-assistant = {
     enable = machines.${config.system.name}.hass;
     config = {
+      default_config = {};
       homeassistant = {
         name = "Home";
         unit_system = "metric";
@@ -232,6 +233,8 @@ with builtins;  with pkgs.lib;
         "androidtv_remote"
 	"mikrotik"
 	"zha"
+    "hacs"
+    "energy"
       ];
     }
     ;

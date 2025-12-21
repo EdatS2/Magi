@@ -31,6 +31,9 @@ grafana:
 
 prometheus:
   prometheusSpec:
+    serviceMonitorSelectorNilUsesHelmValues: False
+    serviceMonitorSelector: {}
+    serviceMonitorNamespaceSelector: {}
     retention: 3d
     replicas: 1
     storageSpec: 
@@ -41,3 +44,15 @@ prometheus:
          resources:
            requests:
              storage: 20Gi
+
+# Source - https://stackoverflow.com/a
+# Posted by Sergei Kuzmin, modified by community. See post 'Timeline' for change history
+# Retrieved 2025-12-10, License - CC BY-SA 4.0
+
+prometheusOperator:
+  namespaces: ''
+  denyNamespaces: ''
+  prometheusInstanceNamespaces: ''
+  alertmanagerInstanceNamespaces: ''
+  thanosRulerInstanceNamespaces: ''
+
