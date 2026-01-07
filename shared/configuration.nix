@@ -180,7 +180,7 @@ with builtins;  with pkgs.lib;
     enable = true;
     settings = {
       PasswordAuthentication = false;
-      AllowUsers = [ "admin" "root"];
+      AllowUsers = [ "admin" "root" "sunshine"];
       PermitRootLogin = "yes";
     };
 #j    listenAddresses = [{
@@ -268,6 +268,7 @@ with builtins;  with pkgs.lib;
       "--disable local-storage"
       ];
   };
+  steam_server.enable = machines.${config.system.name}.nvidia;
   services.xserver.videoDrivers = if (machines.${config.system.name}.nvidia)
   then [ 
     "nvidia"
@@ -277,13 +278,12 @@ with builtins;  with pkgs.lib;
 	  enable = true;
 	  host = machines.${config.system.name}.ip;
 	  package = pkgs.ollama-cuda;
-	  acceleration = "cuda";
   } else
   {
 	  enable = false;
   };
   services.llama-cpp = if (machines.${config.system.name}.nvidia ) then {
-	  enable = true;
+	  enable = false;
 	  host = machines.${config.system.name}.ip;
 	  model = "/home/llama-cpp/bge-Q6-K.gguf";
 	  package = pkgs.llama-cpp.override { cudaSupport = true;};
