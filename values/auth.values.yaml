@@ -16,6 +16,12 @@ authentik:
   log_level: trace
   error_reporting:
     enabled: false
+  email:
+    host: "salverdaserver.nl"
+    port: 587
+    username: cluster@salverdaserver.nl
+    use_tls: true
+    from: auth@salverdaserver.nl
 
 server:
   ingress:

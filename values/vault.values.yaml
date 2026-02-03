@@ -18,7 +18,7 @@ database:
 # Set vaultwarden application variables
 vaultwarden:
   ## Set Bitwarden URL, mandatory for invitations over email. Recommended if using a reverse proxy / ingress. Format is https://name or http://name
-  #domain: 
+  domain: https://vault.salverdaserver.nl
   # Allow any user to sign-up: https://github.com/dani-garcia/vaultwarden/wiki/Disable-registration-of-new-users
   allowSignups: false
   ## Whitelist domains allowed to sign-up. 'allowSignups' is ignored if set.
@@ -27,18 +27,18 @@ vaultwarden:
   # Verify e-mail before login is enabled. SMTP must be enabled.
   verifySignup: false
   # When a user logs in an email is required to be sent. If sending the email fails the login attempt will fail. SMTP must be enabled.
-  requireEmail: false
+  requireEmail: true
   ## Maximum attempts before an email token is reset and a new email will need to be sent.
   #emailAttempts: 3
   ## Email token validity in seconds.
   #emailTokenExpiration: 600
   # Allow invited users to sign-up even feature is disabled: https://github.com/dani-garcia/vaultwarden/wiki/Disable-invitations
-  allowInvitation: false
+  allowInvitation: true
   ## Number of hours after which an organization invite token, emergency access invite token,
   ## email verification token and deletion request token will expire
-  invitationExpiration: 5
+  invitationExpiration: 1
   ## Allow users to set password hints. Applies to all users.
-  #passwordHintsAllowed: true
+  passwordHintsAllowed: false
   # Show password hints: https://github.com/dani-garcia/vaultwarden/wiki/Password-hint-display
   showPasswordHint: false
   ## Default organization name in invitation e-mails that are not coming from a specific organization.
@@ -64,7 +64,7 @@ vaultwarden:
   ## Organization event retation. Leave empty to not delete.
   #orgEventsRetention: ""
   ## Allow users to change their email.
-  #emailChangeAllowed: true
+  emailChangeAllowed: false
   ## Map of custom environment variables. Use carefully.
   #extraEnv:
   #  IP_HEADER: CF-Connecting-IP
@@ -98,11 +98,11 @@ vaultwarden:
 
   # Enable SMTP. https://github.com/dani-garcia/vaultwarden/wiki/SMTP-configuration
   smtp:
-    enabled: false
+    enabled: true
     # SMTP hostname, required if SMTP is enabled.
-    host: ""
+    host: "salverdaserver.nl"
     # SMTP sender e-mail address, required if SMTP is enabled.
-    from: ""
+    from: "vault@salverdaserver.nl"
     ## SMTP sender name, defaults to 'Vaultwarden'.
     #fromName: ""
     # Enable secure SSL connection. Options are: "starttls", "force_tls" and "off"
@@ -112,9 +112,9 @@ vaultwarden:
     #   ssl = true and explicitTLS = true -> "force_tls"
     security: starttls
     ## SMTP port. Defaults depends on security: 465 for "force_tls", 587 for "starttls" and 25 for "off"
-    #port: 587
+    port: 587
     ## SMTP Authentication Mechanisms. Comma-separated options: 'Plain', 'Login' and 'Xoauth2'. Defaults to 'Plain'.
-    #authMechanism: Plain
+    authMechanism: Login
     ## Hostname to be sent for SMTP HELO. Defaults to pod name.
     #heloName: ""
     ## SMTP timeout.
@@ -124,13 +124,13 @@ vaultwarden:
     ## Accept invalid certificates. DANGEROUS, vulnerable to men-in-the-middle attacks!
     #invalidCertificate: false
     ## SMTP username.
-    #user: ""
+    user: "cluster@salverdaserver.nl"
     ## SMTP password. Required is user is specified, ignored if no user provided.
     #password: ""
     ## Use existing secret for SMTP authentication. Keys are 'smtp-user' and 'smtp-password'.
     #existingSecret:
     ## Embed images as email attachments
-    #embedImages: true
+    embedImages: true
 
   ## Enable Yubico OPT authentication. https://github.com/dani-garcia/vaultwarden/wiki/Enabling-Yubikey-OTP-authentication
   yubico:
@@ -278,17 +278,17 @@ podLabels: {}
 # Annotations to add to the Deployment
 deploymentAnnotations: {}
 # Readiness and Liveness probes
-probes: {}
-  #liveness:
-    #timeoutSeconds: 1
-    #periodSeconds: 10
-    #successThreshold: 1
-    #failureThreshold: 3
-  #readiness:
-    #timeoutSeconds: 1
-    #periodSeconds: 10
-    #successThreshold: 1
-    #failureThreshold: 3
+probes: 
+  liveness:
+    timeoutSeconds: 1
+    periodSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
+  readiness:
+    timeoutSeconds: 1
+    periodSeconds: 10
+    successThreshold: 1
+    failureThreshold: 3
 
 # initContainers containers, add container spec (https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#Container)
 # No templating possible, values need to be hardcoded

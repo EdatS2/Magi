@@ -70,6 +70,8 @@ releases:
       value: true
     - name: controller.metrics.serviceMonitor.enabled
       value: true
+    - name: controller.config.http2
+      value: true
 
   # certmanager
 - name: cert-manager
@@ -100,7 +102,7 @@ releases:
 - name: openwebui
   namespace: applications
   chart: openwebui/open-webui
-  version: 8.14.0
+  version: 10.2.1
   values: 
     - ./values/webui.values.yaml
   secrets:
@@ -117,7 +119,7 @@ releases:
 - name: authentik
   namespace: auth
   chart: goauthentik/authentik
-  version: 2025.8.4
+  version: 2025.10.0
   values:
     - ./values/auth.values.yaml
   secrets:
@@ -144,7 +146,7 @@ releases:
 - name: immich
   namespace: applications
   chart: immich/immich
-  version: 0.10.0
+  version: 0.10.3
   values:
     - ./values/immich.values.yaml
   secrets:
@@ -160,7 +162,7 @@ releases:
 - name: nextcloud
   namespace: applications
   chart: nextcloud/nextcloud
-  version: 8.6.0
+  version: 8.8.2
   values:
     - ./values/nextcloud.values.yaml
   secrets:

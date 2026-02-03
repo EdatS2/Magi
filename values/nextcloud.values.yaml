@@ -29,7 +29,7 @@ deploymentAnnotations: {}
 deploymentLabels: {}
 
 # Number of replicas to be deployed
-replicaCount: 2
+replicaCount: 1
 
 ## Allowing use of ingress controllers
 ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/
@@ -41,6 +41,9 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-body-size: 4G
     nginx.ingress.kubernetes.io/enable-cors: "true"
     nginx.ingress.kubernetes.io/cors-allow-headers: "X-Forwarded-For"
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-request-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "1800s"
   #  kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/affinity: cookie
@@ -174,6 +177,11 @@ nextcloud:
   # Extra config files created in /var/www/html/config/
   # ref: https://docs.nextcloud.com/server/latest/admin_manual/configuration_server/config_sample_php_parameters.html#multiple-config-php-file
   configs: 
+   htaccess.config.php: |-
+     <?php
+     $CONFIG = array (
+      'htaccess.RewriteBase' => "/",
+     );
   # For example, to enable image and text file previews:
    previews.config.php: |-
      <?php
@@ -190,7 +198,8 @@ nextcloud:
          'OC\Preview\MP4',
          'OC\Preview\TXT',
          'OC\Preview\MarkDown',
-         'OC\Preview\PDF'
+         'OC\Preview\PDF',
+         'OC\Preview\Imaginary'
        ),
      );
    proxy.config.php: |-
@@ -199,7 +208,7 @@ nextcloud:
         'forwarded_for_headers' => array('HTTP_X_FORWARDED_FOR'),
         'overwriteprotocol' => 'https',
         'default_phone_region' => 'NL',
-        'overwrite.cli.url' => 'cloud.salverdaserver.nl',
+        'overwrite.cli.url' => 'https://cloud.salverdaserver.nl',
         'trusted_proxies' => array('10.42.0.1/24', '10.13.13.10/32'),
       );
    oidc.config.php: |-
@@ -237,7 +246,17 @@ nextcloud:
 
   ##
   ## Extra environment variables
+  
   extraEnv:
+    - name: PHP_FPM_PM_MAX_CHILDREN
+      value: "60"
+    - name: PHP_FPM_PM_START_SERVERS
+      value: "10"
+    - name: PHP_FPM_PM_MIN_SPARE_SERVERS
+      value: "10"
+    - name: PHP_FPM_PM_MAX_SPARE_SERVERS
+      value: "20"
+
   #  - name: SOME_SECRET_ENV
   #    valueFrom:
   #      secretKeyRef:
@@ -549,15 +568,15 @@ resources: {}
 ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
 ##
 livenessProbe:
-  enabled: false
-  initialDelaySeconds: 100
+  enabled: true
+  initialDelaySeconds: 20
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 3
   successThreshold: 1
 readinessProbe:
-  enabled: false
-  initialDelaySeconds: 100
+  enabled: true
+  initialDelaySeconds: 10
   periodSeconds: 10
   timeoutSeconds: 5
   failureThreshold: 3
@@ -597,7 +616,7 @@ imaginary:
   # -- Start Imgaginary
   enabled: true
   # -- Number of imaginary pod replicas to deploy
-  replicaCount: 1
+  replicaCount: 3
 
   image:
     # -- Imaginary image registry

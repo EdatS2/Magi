@@ -15,7 +15,7 @@ controllers:
           # -- You should provide your own secret outside of this helm-chart and use `postgresql.global.postgresql.auth.existingSecret` to provide credentials to the postgresql instance
           IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
         image:
-          tag: v2.3.1
+          tag: v2.4.1
 
 
 immich:
@@ -47,6 +47,16 @@ immich:
       autoLaunch: true
     passwordLogin: 
       enabled: false
+    notifications:
+      smtp:
+        enabled: true
+        from: immich@salverdaserver.nl
+        transport:
+          host: salverdaserver.nl
+          ignoreCert: false
+          port: 587
+          secure: true
+          username: cluster@salverdaserver.nl
 
 valkey:
   enabled: true
