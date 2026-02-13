@@ -70,6 +70,7 @@ in
         settings = {
           sunshine_name = "nixos";
           capture = "wlr";
+          output_name = "3";
         };
         applications = {
           env = {

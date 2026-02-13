@@ -17,10 +17,12 @@ with builtins;  with pkgs.lib;
     efiSupport = true;
     efiInstallAsRemovable = true;
   };
-  # boot.zfs = {
-  #   enabled = machines.${config.system.name}.zfs;
-  #   boot.zfs.extraPools = [ "WDred" ];
-  # };
+  boot.zfs = {
+    # enabled = machines.${config.system.name}.zfs;
+    extraPools = [ "WDred" ];
+  };
+  boot.supportedFilesystems.zfs = machines.${config.system.name}.zfs;
+  networking.hostId = "38c2d6ec";
   # boot.loader.efi.canTouchEfiVariables = true;
 
   environment.systemPackages = with pkgs; map lib.lowPrio [
@@ -54,6 +56,8 @@ with builtins;  with pkgs.lib;
     libnfs
     smartmontools
     zlib
+    hdparm
+    zfs
   ];
 
   #boot.kernelPackages = pkgs.linuxPackages_latest;
