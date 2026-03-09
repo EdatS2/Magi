@@ -161,7 +161,7 @@ with builtins;  with pkgs.lib;
         allowedTCPPorts = [ 
         80
         443
-	53
+        53
         22
         6443 #apiserver
         2379 #etcd
@@ -174,7 +174,7 @@ with builtins;  with pkgs.lib;
         allowedUDPPorts = [ 
         80
         443
-	53
+        53
         8472 
         ];
 
@@ -279,24 +279,7 @@ with builtins;  with pkgs.lib;
     "nvidia"
   ] else
   [];
-  services.ollama = if (machines.${config.system.name}.nvidia ) then {
-	  enable = false;
-	  host = machines.${config.system.name}.ip;
-	  package = pkgs.ollama-cuda;
-  } else
-  {
-	  enable = false;
-  };
   llm.enable = machines.${config.system.name}.nvidia;
-  services.llama-cpp = if (machines.${config.system.name}.nvidia ) then {
-	  enable = false;
-	  host = machines.${config.system.name}.ip;
-	  model = "/home/llama-cpp/bge-Q6-K.gguf";
-	  package = pkgs.llama-cpp.override { cudaSupport = true;};
-  } else
-  {
-	  enable = false;
-  };
   nixpkgs.config.allowUnfree = if (machines.${config.system.name}.nvidia ==
   true) then true else false;
   hardware.graphics.enable = true;

@@ -112,7 +112,7 @@ vaultwarden:
     #   ssl = true and explicitTLS = true -> "force_tls"
     security: starttls
     ## SMTP port. Defaults depends on security: 465 for "force_tls", 587 for "starttls" and 25 for "off"
-    port: 587
+    port: "587"
     ## SMTP Authentication Mechanisms. Comma-separated options: 'Plain', 'Login' and 'Xoauth2'. Defaults to 'Plain'.
     authMechanism: Login
     ## Hostname to be sent for SMTP HELO. Defaults to pod name.
@@ -183,9 +183,9 @@ service:
   httpPort: 80
   externalTrafficPolicy: Cluster
   # loadBalancerIP:
-  nodePorts:
+  # nodePorts:
     # Choose NodePorts manually
-    http: ""
+    # http: ""
 
 # Kubernetes Ingress
 ingress:
@@ -217,10 +217,10 @@ ingressRoute:
   entrypoints:
     - websecure
   ## Enable Traefik middlewares
-  middlewares: {}
+  # middlewares: {}
   #  - name: my_middleware
   #    namespace: default
-  tls: {}
+  # tls: {}
     #certResolver: letsencrypt
 
 persistence:
@@ -245,7 +245,7 @@ customVolume: {}
 image:
   pullPolicy: IfNotPresent
   repository: vaultwarden/server
-  tag: ""
+  tag: "1.35.4"
 
 imagePullSecrets: []
 nameOverride: ""

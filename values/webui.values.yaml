@@ -1,5 +1,6 @@
 nameOverride: ""
 namespaceOverride: ""
+fullnameOverride: "open-webui"
 ollama:
   # -- Automatically install Ollama Helm chart from https://otwld.github.io/ollama-helm/. Use [Helm Values](https://github.com/otwld/ollama-helm/#helm-values) to configure
   enabled:  false 
@@ -26,10 +27,11 @@ pipelines:
   enabled: true
   # -- This section can be used to pass required environment variables to your pipelines (e.g. Langfuse hostname)
   extraEnvVars: []
+  fullnameOverride: "open-webui-pipelines"
 
 tika:
   # -- Automatically install Apache Tika to extend Open WebUI
-  enabled: false
+  enabled: true
 
 # -- A list of Ollama API endpoints. These can be added in lieu of automatically installing the Ollama Helm chart, or in addition to it.
 ollamaUrls: [http://10.13.13.6:11434]

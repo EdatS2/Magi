@@ -102,7 +102,7 @@ releases:
 - name: openwebui
   namespace: applications
   chart: openwebui/open-webui
-  version: 10.2.1
+  version: 12.0.0
   values: 
     - ./values/webui.values.yaml
   secrets:
@@ -119,7 +119,7 @@ releases:
 - name: authentik
   namespace: auth
   chart: goauthentik/authentik
-  version: 2025.10.0
+  version: 2025.12.3
   values:
     - ./values/auth.values.yaml
   secrets:
@@ -162,7 +162,7 @@ releases:
 - name: nextcloud
   namespace: applications
   chart: nextcloud/nextcloud
-  version: 8.8.2
+  version: 8.9.1
   values:
     - ./values/nextcloud.values.yaml
   secrets:
@@ -195,7 +195,7 @@ releases:
 - name: vaultwarden
   namespace: applications
   chart: bitwarden/vaultwarden
-  version: 1.2.6
+  version: 1.3.0
   values:
     - ./values/vault.values.yaml
   secrets:
