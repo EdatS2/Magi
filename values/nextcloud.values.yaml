@@ -11,9 +11,8 @@ global:
 ## ref: https://hub.docker.com/r/library/nextcloud/tags/
 ##
 image:
-  repository: nextcloud
-  registry: docker.io
   repository: library/nextcloud
+  registry: docker.io
   flavor: apache
 
   pullPolicy: IfNotPresent
@@ -257,6 +256,8 @@ nextcloud:
       value: "10"
     - name: PHP_FPM_PM_MAX_SPARE_SERVERS
       value: "20"
+    - name: SERVER_ID
+      value: "8494d0cc2f2c4fa9"
 
   #  - name: SOME_SECRET_ENV
   #    valueFrom:
@@ -759,35 +760,36 @@ metrics:
   # seccompProfile:
   #   type: RuntimeDefault
 
-  ## Prometheus Operator ServiceMonitor configuration
-  ##
+## Prometheus Operator ServiceMonitor configuration
+##
+prometheus:
   serviceMonitor:
-    ## @param metrics.serviceMonitor.enabled Create ServiceMonitor Resource for scraping metrics using PrometheusOperator
+    ## @param prometheus.serviceMonitor.enabled Create ServiceMonitor Resource for scraping metrics using PrometheusOperator
     ##
     enabled: false
 
-    ## @param metrics.serviceMonitor.namespace Namespace in which Prometheus is running
+    ## @param prometheus.serviceMonitor.namespace Namespace in which Prometheus is running
     ##
     namespace: ""
 
-    ## @param metrics.serviceMonitor.namespaceSelector The selector of the namespace where the target service is located (defaults to the release namespace)
+    ## @param prometheus.serviceMonitor.namespaceSelector The selector of the namespace where the target service is located (defaults to the release namespace)
     namespaceSelector:
 
-    ## @param metrics.serviceMonitor.jobLabel The name of the label on the target service to use as the job name in prometheus.
+    ## @param prometheus.serviceMonitor.jobLabel The name of the label on the target service to use as the job name in prometheus.
     ##
     jobLabel: ""
 
-    ## @param metrics.serviceMonitor.interval Interval at which metrics should be scraped
+    ## @param prometheus.serviceMonitor.interval Interval at which metrics should be scraped
     ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
     ##
     interval: 30s
 
-    ## @param metrics.serviceMonitor.scrapeTimeout Specify the timeout after which the scrape is ended
+    ## @param prometheus.serviceMonitor.scrapeTimeout Specify the timeout after which the scrape is ended
     ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
     ##
     scrapeTimeout: ""
 
-    ## @param metrics.serviceMonitor.labels Extra labels for the ServiceMonitor
+    ## @param prometheus.serviceMonitor.labels Extra labels for the ServiceMonitor
     ##
     labels: {}
 
@@ -811,7 +813,6 @@ metrics:
     # -- Add own Rules to Prometheus Rules
     # @section -- Metrics
     additionalRules: []
-
 
 rbac:
   enabled: false
