@@ -12,6 +12,7 @@ with builtins;  with pkgs.lib;
     (modulesPath + "/profiles/qemu-guest.nix")
     ./script.nix
     ./steam.nix
+    ./llm.nix
     ];
   boot.loader.grub = {
     efiSupport = true;
@@ -279,13 +280,14 @@ with builtins;  with pkgs.lib;
   ] else
   [];
   services.ollama = if (machines.${config.system.name}.nvidia ) then {
-	  enable = true;
+	  enable = false;
 	  host = machines.${config.system.name}.ip;
 	  package = pkgs.ollama-cuda;
   } else
   {
 	  enable = false;
   };
+  llm.enable = machines.${config.system.name}.nvidia;
   services.llama-cpp = if (machines.${config.system.name}.nvidia ) then {
 	  enable = false;
 	  host = machines.${config.system.name}.ip;
