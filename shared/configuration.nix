@@ -71,6 +71,7 @@ with pkgs.lib;
     "nix-command"
     "flakes"
   ];
+  nixpkgs.config.allowUnfree = true;
   programs.zsh = {
     enable = true;
     enableCompletion = true;
@@ -321,12 +322,21 @@ with pkgs.lib;
     ];
   };
   steam_server.enable = machines.${config.system.name}.nvidia;
+  llm.enable = machines.${config.system.name}.nvidia;
   hardware.graphics.enable = true;
-  hardware.nvidia = {
+  hardware.nvidia = if (machines.${config.system.name}.nvidia == true) then
+  {
     powerManagement.enable = true;
     powerManagement.finegrained = false;
     open = true;
+  } else
+  {
   };
+  services.xserver.videoDrivers = if (machines.${config.system.name}.nvidia)
+  then [
+    "nvidia"
+  ] else
+  [ "modesetting" ];
 
   virtualisation.docker.enable = true;
   users.users.admin = {

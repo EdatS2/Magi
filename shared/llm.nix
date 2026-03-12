@@ -113,7 +113,7 @@ in
 
               # ADDED 11-03-2026
               "Qwen:35B":
-                cmd: ${llama-cpp}/bin/llama-server -hf unsloth/Qwen3.5-35B-A3B-GGUF:UD-Q3_K_XL --port ''${PORT} --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95 --ctx-size 65536 --cache-type-k q8_0 --cache-type-v q4_1 --flash-attn on --direct-io --ctx-checkpoints 64 --checkpoint-every-n-tokens 2048
+                cmd: ${llama-cpp}/bin/llama-server -hf unsloth/Qwen3.5-35B-A3B-GGUF:UD-Q3_K_XL --port ''${PORT} --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95 --ctx-size 65536 --cache-type-k q8_0 --cache-type-v q4_1 --flash-attn on --direct-io --ctx-checkpoints 64 --checkpoint-every-n-tokens 2048 --fit-target 2048
 
 
 
