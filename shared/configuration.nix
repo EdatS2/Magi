@@ -15,7 +15,7 @@ with pkgs.lib;
     ./script.nix
     ./steam.nix
     ./llm.nix
-    ];
+  ];
   boot.loader.grub = {
     efiSupport = true;
     efiInstallAsRemovable = true;
@@ -192,31 +192,43 @@ with pkgs.lib;
     nameservers = [ machines.kubeMaster.gateway ];
   };
   services.smartd = {
-      enable = false;
-      autodetect = true;
-      defaults.autodetected = "-a -n standby,idle -s
+    enable = false;
+    autodetect = true;
+    defaults.autodetected = "-a -n standby,idle -s
       (S/../.././02|L/../01/./04)";
-      notifications = {
-          test = true;
-          mail = {
-              sender = config.system.name;
-              recipient = "tade@salverdaserver.nl";
-              enable = true;
-          };
+    notifications = {
+      test = true;
+      mail = {
+        sender = config.system.name;
+        recipient = "tade@salverdaserver.nl";
+        enable = true;
       };
+    };
   };
   systemd.services.hddspindown = {
     enable = machines.${config.system.name}.zfs;
     after = [ "systemd-remount-fs.service" ];
     wants = [ "local-fs.target" ];
     serviceConfig = {
-      Type = "oneshot";
+      Type = "simple";
       ExecStart = ''
-        ${pkgs.hdparm}/bin/hdparm -S 120 /dev/sda /dev/sdb /dev/sdc /dev/sdd /dev/sde /dev/sdf
+        ${pkgs.hdparm}/bin/hdparm -S 120 -B 120 /dev/sda /dev/sdb /dev/sdc /dev/sdd /dev/sde /dev/sdf
       '';
       RemainAfterExit = true;
     };
     startAt = "startup";
+  };
+  services.samba = {
+    enable = machines.${config.system.name}.zfs;
+    settings = {
+      global = {
+        "usershare path" = "/var/lib/samba/usershares";
+        "usershare max shares" = "100";
+        "usershare allow guests" = "yes";
+        "usershare owner only" = "no";
+      };
+    };
+    openFirewall = true;
   };
   services.openssh = {
     enable = true;
@@ -324,19 +336,23 @@ with pkgs.lib;
   steam_server.enable = machines.${config.system.name}.nvidia;
   llm.enable = machines.${config.system.name}.nvidia;
   hardware.graphics.enable = true;
-  hardware.nvidia = if (machines.${config.system.name}.nvidia == true) then
-  {
-    powerManagement.enable = true;
-    powerManagement.finegrained = false;
-    open = true;
-  } else
-  {
-  };
-  services.xserver.videoDrivers = if (machines.${config.system.name}.nvidia)
-  then [
-    "nvidia"
-  ] else
-  [ "modesetting" ];
+  hardware.nvidia =
+    if (machines.${config.system.name}.nvidia == true) then
+      {
+        powerManagement.enable = true;
+        powerManagement.finegrained = false;
+        open = true;
+      }
+    else
+      {
+      };
+  services.xserver.videoDrivers =
+    if (machines.${config.system.name}.nvidia) then
+      [
+        "nvidia"
+      ]
+    else
+      [ "modesetting" ];
 
   virtualisation.docker.enable = true;
   users.users.admin = {
