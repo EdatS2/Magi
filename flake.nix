@@ -94,7 +94,7 @@
             apacheHttpd
             sops
             jq
-            opencode
+            awscli
         ] ++
         [(wrapHelm kubernetes-helm {
             plugins = with pkgs.kubernetes-helmPlugins; [

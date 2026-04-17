@@ -11,10 +11,12 @@ with pkgs.lib;
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
+    ./dev-container.nix
     (modulesPath + "/profiles/qemu-guest.nix")
     ./script.nix
     ./steam.nix
     ./llm.nix
+    ./keepalived.nix
   ];
   boot.loader.grub = {
     efiSupport = true;
@@ -56,8 +58,6 @@ with pkgs.lib;
       helmsman
       cifs-utils
       nfs-utils
-      nftables
-      openiscsi
       libnfs
       smartmontools
       zlib
@@ -218,18 +218,57 @@ with pkgs.lib;
     };
     startAt = "startup";
   };
-  services.samba = {
+  services.garage = {
     enable = machines.${config.system.name}.zfs;
+    package = pkgs.garage_2;
     settings = {
-      global = {
-        "usershare path" = "/var/lib/samba/usershares";
-        "usershare max shares" = "100";
-        "usershare allow guests" = "yes";
-        "usershare owner only" = "no";
+      data_dir = [
+        {
+          capacity = "10T";
+          path = "/WDred/Garage";
+        }
+      ];
+      metadata_dir = "/var/lib/garage/meta";
+      metadata_snapshots_dir = "/WDred/Garage/meta_snapshots";
+      # we have a one node config
+      admin = {
+        admin_token = "614700bfb4d964be8f39dabdedb001562dd5aa0606a3581243a56b24ef154c05";
+        api_bind_addr = "[::]:3903";
+        metrics_token = "fc66162b3011e1c29cc29eb78c08d901bf11a5f3aa043a9223201beb624d6bd8";
+      };
+      db_engine = "sqlite";
+      k2v_api = {
+        api_bind_addr = "[::]:3904";
+      };
+      replication_factor = 1;
+      metadata_auto_snapshot_interval = "12h";
+      rpc_bind_addr = "[::]:3901";
+      rpc_public_addr = "127.0.0.1:3901";
+      rpc_secret = "f2720f53ceb92838b555a456a4288c40f24a9c63bf007c8c30f9d6e7787e70f1";
+      s3_api = {
+        api_bind_addr = "[::]:3900";
+        root_domain = ".s3.garage.localhost";
+        s3_region = "garage";
+      };
+      s3_web = {
+        bind_addr = "[::]:3902";
+        index = "index.html";
+        root_domain = ".web.garage.localhost";
       };
     };
-    openFirewall = true;
   };
+
+  # services.samba = {
+  #   enable = machines.${config.system.name}.zfs;
+  #   settings = {
+  #     global = {
+  #       "usershare path" = "/var/lib/samba/usershares";
+  #       "usershare max" = "100";
+  #       "usershare allow guests" = "yes";
+  #       "usershare owner only" = "no";
+  #     };
+  #   };
+  # };
   services.openssh = {
     enable = true;
     settings = {
@@ -241,11 +280,6 @@ with pkgs.lib;
       ];
       PermitRootLogin = "yes";
     };
-    #j    listenAddresses = [{
-    #	addr = machines.${config.system.name}.ip;
-    #	port = 22;
-    #
-    #    }];
   };
   services.octoprint = {
     enable = machines.${config.system.name}.octo;
@@ -320,7 +354,7 @@ with pkgs.lib;
     clusterInit = machines.${config.system.name}.master;
     serverAddr =
       if (machines.${config.system.name}.master == false) then
-        "https://${machines.kubeMaster.ip}:6443"
+        "https://${machines.kubeMaster.ip}:${toString machines.kubeMaster.port}"
       else
         "";
     extraFlags = [
@@ -332,6 +366,28 @@ with pkgs.lib;
       "--disable traefik"
       "--disable local-storage"
     ];
+  };
+  services.haproxy = {
+    enable = true;
+    config = ''
+      defaults {
+        mode tcp
+        timeout 1m
+      }
+
+      listen kubernetes_api
+        bind "*:${toString machines.kubeMaster.port}"
+        mode tcp
+        ${builtins.concatStringsSep "\n" (
+          map (
+            name:
+            let
+              m = machines.${name};
+            in
+            if m.node then "server ${name} ${m.ip}:${toString machines.kubeMaster.port} check" else ""
+          ) (builtins.attrNames machines)
+        )}
+    '';
   };
   steam_server.enable = machines.${config.system.name}.nvidia;
   llm.enable = machines.${config.system.name}.nvidia;
@@ -378,4 +434,9 @@ with pkgs.lib;
 
   system.stateVersion = "24.05";
 
+  # Enable dev container for melchior
+  devContainer.enable = config.system.name == "melchior";
+  devContainer.ssh.enable = config.system.name == "melchior";
+  devContainer.python.enable = config.system.name == "melchior";
+  devContainer.conda.enable = config.system.name == "melchior";
 }

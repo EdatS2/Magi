@@ -1,5 +1,6 @@
 pkgs:
-with builtins; with pkgs.lib;
+with builtins;
+with pkgs.lib;
 {
   balthazar = {
     ip = "10.13.13.3";
@@ -66,9 +67,10 @@ with builtins; with pkgs.lib;
     zfs = true;
   };
   kubeMaster = {
-      ip = "10.13.13.3";
-      gateway = "10.13.13.1";
-      port = 6443;
-      name = "kubernetes";
+    ip = "10.13.13.100";
+    gateway = "10.13.13.1";
+    port = 6443;
+    name = "kubernetes";
+    node = false;
   };
 }

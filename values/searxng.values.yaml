@@ -8,7 +8,7 @@
 ##
 image:
   repository: searxng/searxng
-  tag: "latest"
+  tag: "2026.3.2-dd98f761a"
   imagePullPolicy: IfNotPresent
 
 ## @section Common parameters
@@ -65,7 +65,9 @@ replicaCount: 1
 
 imagePullSecrets: []
 
-env: []
+env: 
+  - name: GRANIAN_PORT
+    value: "8080"
   # - name: TZ
   #   value: "Europe/London"
 
@@ -123,6 +125,7 @@ config:
       # Who will run the code
       uid = searxng
       gid = searxng
+      granian_port = 8080
 
       # Number of workers (usually CPU count)
       # default value: %k (= number of CPU core, see Dockerfile)
@@ -209,7 +212,7 @@ readinessProbe:
 
 autoscaling:
   enabled: true
-  minReplicas: 2
+  minReplicas: 1
   maxReplicas: 5
   targetCPUUtilizationPercentage: 80
   targetMemoryUtilizationPercentage: 80

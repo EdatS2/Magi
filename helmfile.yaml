@@ -102,7 +102,7 @@ releases:
 - name: openwebui
   namespace: applications
   chart: openwebui/open-webui
-  version: 12.10.0
+  version: 12.13.0
   values: 
     - ./values/webui.values.yaml
   secrets:

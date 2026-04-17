@@ -122,7 +122,8 @@ in
                     --ctx-size 60000 --cache-type-k q8_0 --cache-type-v q4_1
                     --flash-attn on --direct-io --ctx-checkpoints 64
                     --checkpoint-every-n-tokens 2048 --fit-target 2048
-
+            
+              # ADDED 02-04-2026
               "Gemma:26B": 
                 cmd: | 
                     ${llama-cpp}/bin/llama-server 
@@ -131,7 +132,7 @@ in
                     --ctx-size 120000 --cache-type-k q8_0 --cache-type-v q8_0
                     --flash-attn on --direct-io --ctx-checkpoints 64
                     --checkpoint-every-n-tokens 2048 --fit-target 2048
-                    --parallel 2
+                    --parallel 2 --reasoning-budget 1000
 
 
                     # -hfd Jackrong/Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled-GGUF:Q4_K_S 
