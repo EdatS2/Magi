@@ -1,58 +1,85 @@
-## This is slightly outdated, it is currently k3s, cluster structure mostly accurate
+# Magi: NixOS K3s Infrastructure as Code
 
-# NixOS K8S, N masters, N nodes, Stacked ETCD
-If those things mean anything to you, you already know what this repo does. It
-is an infrastructure as code (IaC) project focussed on achieving an easy way to
-deploy Nix based Kubernetes nodes. The current NixOS k8s module is quite limited
-when it comes to setting up more than one master [check the
-wiki](https://nixos.wiki/wiki/Kubernetes). However, for high availability
-(HA) this is preferred. The goal of this repo is to make that possible and easy.
+An IaC project for deploying highly available (HA) Kubernetes clusters using NixOS and `k3s`. This repository automates the provisioning of bare-metal nodes, providing a scalable and reproducible way to manage a production-grade cluster.
 
-## Another NixOS k8s HA repo??
-yes.
-There are other projects that work on the same issue:
+## Core Technologies
 
-1. [nix-infra-ha-cluster](https://github.com/jhsware/nix-infra-ha-cluster)
-2. [nixos-ha-kubernetes](https://github.com/justinas/nixos-ha-kubernetes)
+* **NixOS**: Fully reproducible system configuration.
+* **K3s**: Lightweight Kubernetes distribution, managed via a single bootstrapper node.
+* **HA Networking**: Load balancing and high availability managed via `keepalived` and `haproxy`.
+* **sops-nix**: Secure, declarative secret management integrated into the Nix lifecycle.
+* **Disko**: Declarative disk partitioning and formatting.
+* **Helmfile**: Orchestrates the deployment of all services running within the cluster.
 
-Citing mostly the same issues, HA support. The main difference is that this
-effort targets bare metal deployments with [NixOS
-anywhere](https://github.com/nix-community/nixos-anywhere) where the other
-projects either deploy to the cloud or use terraform to deploy VM's locally.
+## Configuration (`machines.nix`)
 
-# Cluster structure
-``Machines.nix`` governs the structure of the cluster, everything is defined in
-that toplevel file, from there everything is auto generated. Per node you can
-change the IP, and what service is deployed to it, either kubernetes or etcd, or
-both. When deploying it checks: is it a node? If it isn't you can't deploy to it, 
-this is used for the Router, 
-which in this repo does not run NixOS (if you have a NixOS router, you could
-probably do a better job at this than me).
-The basic deployment: 3 nodes, 3 kubernetes control planes, 3 etcd nodes. This
-is a reasonable setup for HA.
-In ``Machines.nix`` you can change settings for kubeMaster, this set governs
-settings that apply to the load balancer and the IP that the control panel will
-be exposed under, including the port. IP is the virtual IP that will be used by
-the load balancer. Gateway is the Router speaking BGP. The load balancer used
-here is [kube-vip](https://kube-vip.io/) deployed on each node as a static pod,
-this is enabled with the option ``services.kubernetes.kubelet.manifests``, where
-an attribute set describing the kube-vip manifest is used. The container is
-deplyed using BGP mode, not ARP. Later I might add an option to switch between
-these. Future work further entails auto generating this manifest, the current
-manifest was generated on the command line, then yaml -> json -> nix, then the
-derivation of the config transforms it back to json. (lol) 
+The entire cluster topology is defined in `machines.nix`. Each node is a function of `pkgs` that can be used by other Nix modules.
 
-# workflow
+### Node Attributes
+* `ip`: IP address on the Kubernetes management network.
+* `localIp`: IP address on the local management network (used for SSH and initial access).
+* `interface`: Primary network interface for the node.
+* `longhornInterface` & `longhornIP`: Dedicated network interface and IP for block storage traffic.
+* `disk`: The root block device (e.g., `/dev/nvme0n1`).
+* `master`: If `true`, this node is a control plane node. The first one defined acts as the k3s bootstrapper.
+* `node`: If `true`, enables node-level components (e.g., docker, kubelet).
+* `zfs`: Enables ZFS pools and object storage (Garage).
 
-1. ``mkdir certs``
-2. ``nix run .#apps.genCerts certs``
-3. change ``machines.nix`` to your liking for your deployment
-4. ``nix run .#apps.deploy <target>``
+### Cluster-wide Settings (`kubeMaster`)
+The `kubeMaster` block in `machines.nix` defines the Virtual IP (VIP) used by Keepalived and HAProxy:
+```nix
+  kubeMaster = {
+    ip = "10.13.13.100"; # The VIP
+    gateway = "10.13.13.1"; # BGP Gateway
+    port = 6443; # API Server Port
+    name = "kubernetes";
+  };
+```
 
-Target should be defined in ``machines.nix`` as the configuration and the deploy
-script relies on this. Certs
-have to be generated beforehand and can't be generated in the deployment step, as
-all machines should have certs originating from the same source, otherwise they
-can't talk to each other. 
+## Secret Management (`sops-nix`)
 
+The cluster uses `sops-nix` with the `age` backend for secure, declarative secret management. Unlike other IaC tools, secrets are injected into the Nix store and decrypted into a volatile RAM filesystem (`ramfs`) during the NixOS activation phase.
 
+### 1. Identity Configuration
+Secrets are configured to be decrypted using the node's own SSH host keys. In `configuration.nix`:
+```nix
+sops.age.sshKeyPaths = config.services.openssh.hostKeys;
+```
+This means every node has a unique identity, and a single encrypted file can be used across all nodes.
+
+### 2. The Workflow
+1. **Create/Update Secrets**: Create a file in the `secrets/` directory (e.g., `secrets/garage.yaml`).
+2. **Encrypt**: Use `sops` to encrypt the file. The public identity is derived from your Nix configuration.
+3. **Reference in Nix**: Point your service configuration to the decrypted path provided by `sops`:
+   ```nix
+   services.garage.settings.admin.admin_token_file = config.sops.secrets.garage_admin_token.path;
+   ```
+
+### 3. Bootstrap & Provisioning
+During the initial `deploy.nix` (or `nixos-anywhere`) phase, the necessary **private** identities are injected securely into the node's filesystem (e.g., into `/etc/secrets/`). Once deployed, `sops-nix` handles the decryption automatically during the NixOS activation phase, ensuring secrets never touch the disk.
+
+## Workflow
+
+### 1. Provisioning a New Node
+To deploy a new node to your cluster:
+1. **Define the Machine**: Add the node's configuration to `machines.nix`.
+2. **Deploy**:
+   ```bash
+   nix run .#apps.deploy <machine_name>
+   ```
+   *The `deploy` app uses `nixos-anywhere` to bootstrap the node, passing all necessary certificates and secrets via the `--extra-files` flag.*
+
+### 2. Cluster Maintenance
+
+* **Update Configuration**:
+  ```bash
+  nix run .#apps.update <machine_name>
+  ```
+* **Manage Services**: All cluster-side applications (like Nextcloud, Immich, etc.) are managed and updated via `helmfile`.
+  ```bash
+  # Example (run from the repo root)
+  helmfile sync
+  ```
+
+---
+*Note: This repository is designed for bare-metal deployments. Ensure your local environment is configured to manage `sops-nix` secrets via the appropriate `age` identities.*
