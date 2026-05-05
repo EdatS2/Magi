@@ -2,7 +2,7 @@
 { lib, pkgs, config, ... }:
 let 
     cfg = config.llm.enable;
-# last updated on 11th of March 2026
+# last updated on 5th of april 2026
     llama-cpp =
       (pkgs.llama-cpp.override {
         cudaSupport = true;
@@ -12,12 +12,12 @@ let
         blasSupport = true;
       }).overrideAttrs
         (oldAttrs: rec {
-          version = "8637";
+          version = "8744";
           src = pkgs.fetchFromGitHub {
             owner = "ggml-org";
             repo = "llama.cpp";
             tag = "b${version}";
-            hash = "sha256-H8LUjxmqiAmnFKCea4ZclorvznnGgnAgyIjVFLQJINE=";
+            hash = "sha256-xLsJ8FjDzneyXlGXuGF5RV4xo3VHkMjNRGVPxS5Ihf0=";
             # hash = "sha256-0000000000000000000000000000000000000000000=";
 
             leaveDotGit = true;
@@ -26,7 +26,7 @@ let
               find "$out" -name .git -print0 | xargs -0 rm -rf
             '';
           };
-          npmDepsHash = "sha256-DxgUDVr+kwtW55C4b89Pl+j3u2ILmACcQOvOBjKWAKQ=";
+          npmDepsHash = "sha256-eeftjKt0FuS0Dybez+Iz9VTVMA4/oQVh+3VoIqvhVMw=";
           # npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
           # Enable native CPU optimizations (AVX, AVX2, etc.)
           cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
@@ -111,13 +111,18 @@ in
 
               # ADDED 19-02-2026
               "Cydonia:24B":
-                cmd: ${llama-cpp}/bin/llama-server -hf bartowski/TheDrummer_Cydonia-24B-v4.3-GGUF:Q4_K_M --port ''${PORT} --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95 --ctx-size 16384 --cache-type-k q8_0 --cache-type-v q4_1 --flash-attn on --direct-io
+                cmd: |
+                    ${llama-cpp}/bin/llama-server 
+                    -hf bartowski/TheDrummer_Cydonia-24B-v4.3-GGUF:Q4_K_M 
+                    --port ''${PORT} --threads 18 --jinja --min-p 0.01 
+                    --temp 1.0 --top-p 0.95 
+                    --ctx-size 24000 --cache-type-k q4_1 --cache-type-v q4_1 --flash-attn on --direct-io
 
               # ADDED 11-03-2026
               "Qwen:35B": 
                 cmd: | 
                     ${llama-cpp}/bin/llama-server 
-                    -hf unsloth/Qwen3.5-35B-A3B-GGUF:UD-Q3_K_XL --port ''${PORT}
+                    -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-IQ3_S --port ''${PORT}
                     --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
                     --ctx-size 60000 --cache-type-k q8_0 --cache-type-v q4_1
                     --flash-attn on --direct-io --ctx-checkpoints 64
@@ -128,11 +133,15 @@ in
                 cmd: | 
                     ${llama-cpp}/bin/llama-server 
                     -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-Q3_K_XL --port ''${PORT}
-                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
-                    --ctx-size 120000 --cache-type-k q8_0 --cache-type-v q8_0
+                    --threads 18 --jinja --top-k 64 --temp 1.5
+                    --ctx-size 120000 --cache-type-k f16 --cache-type-v q8_0
                     --flash-attn on --direct-io --ctx-checkpoints 64
                     --checkpoint-every-n-tokens 2048 --fit-target 2048
+<<<<<<< HEAD
                     --parallel 2 --reasoning-budget 1000
+=======
+                    --parallel 2 --reasoning-budget 2000
+>>>>>>> f03717f (LLM update)
 
 
                     # -hfd Jackrong/Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled-GGUF:Q4_K_S 
