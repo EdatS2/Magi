@@ -67,10 +67,12 @@ with pkgs.lib;
     zfs = true;
   };
   kubeMaster = {
-    ip = "10.13.13.100";
+    ip = "10.13.13.3";
     gateway = "10.13.13.1";
     port = 6443;
     name = "kubernetes";
     node = false;
+    haproxyIp = "10.13.13.100";
+    haproxyPort = "6444";
   };
 }

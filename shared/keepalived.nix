@@ -22,7 +22,7 @@ with pkgs.lib;
       "1" = {
         state = if machines.${config.system.name}.master then "MASTER" else "BACKUP";
         interface = "kubernetes";
-        virtualIps = [ { addr = machines.kubeMaster.ip; } ];
+        virtualIps = [ { addr = machines.kubeMaster.haproxyIp; } ];
         priority = if machines.${config.system.name}.master then 101 else 100;
         virtualRouterId = 51;
         trackScripts = [ "check_haproxy" ];

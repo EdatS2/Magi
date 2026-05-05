@@ -357,7 +357,7 @@ with pkgs.lib;
       else
         "";
     extraFlags = [
-      "--debug"
+      # "--debug"
       "--advertise-address=${machines.${config.system.name}.ip}"
       "--node-ip=${machines.${config.system.name}.ip}"
       "--node-external-ip=${machines.${config.system.name}.ip}"
@@ -369,14 +369,13 @@ with pkgs.lib;
   services.haproxy = {
     enable = true;
     config = ''
-      defaults {
+      defaults
         mode tcp
         timeout server 1m
         timeout client 1m
-      }
 
       listen kubernetes_api
-        bind "*:${toString machines.kubeMaster.port}"
+        bind "*:${toString machines.kubeMaster.haproxyPort}"
         mode tcp
         ${builtins.concatStringsSep " " (
           map (
