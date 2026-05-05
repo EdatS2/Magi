@@ -174,11 +174,13 @@ with pkgs.lib;
         53
         22
         6443 # apiserver
+        6444 # idk what this is
         2379 # etcd
         2380 # etcd
         7946 # metallb speaker
         179 # BGP
         9099 # HEALTH check
+        6800 #haproxy
         10250 # kubernetes metrics server
       ];
       allowedUDPPorts = [
@@ -364,6 +366,7 @@ with pkgs.lib;
       "--disable servicelb"
       "--disable traefik"
       "--disable local-storage"
+      "--tls-san=${machines.kubeMaster.haproxyIp}"
     ];
   };
   services.haproxy = {

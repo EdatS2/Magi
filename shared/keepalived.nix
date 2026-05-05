@@ -14,7 +14,7 @@ with pkgs.lib;
     package = pkgs.keepalived;
     vrrpScripts = {
       "check_haproxy" = {
-        script = "/bin/sh -c 'killall -0 haproxy || true'";
+        script = "killall -0 haproxy";
         interval = 2;
       };
     };

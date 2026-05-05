@@ -73,6 +73,6 @@ with pkgs.lib;
     name = "kubernetes";
     node = false;
     haproxyIp = "10.13.13.100";
-    haproxyPort = "6444";
+    haproxyPort = "6800";
   };
 }
