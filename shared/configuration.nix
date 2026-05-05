@@ -330,7 +330,6 @@ with pkgs.lib;
         "androidtv_remote"
         "mikrotik"
         "zha"
-        "hacs"
         "energy"
       ];
     };
@@ -372,19 +371,21 @@ with pkgs.lib;
     config = ''
       defaults {
         mode tcp
-        timeout 1m
+        timeout server 1m
+        timeout client 1m
       }
 
       listen kubernetes_api
         bind "*:${toString machines.kubeMaster.port}"
         mode tcp
-        ${builtins.concatStringsSep "\n" (
+        ${builtins.concatStringsSep " " (
           map (
             name:
             let
               m = machines.${name};
             in
-            if m.node then "server ${name} ${m.ip}:${toString machines.kubeMaster.port} check" else ""
+            if m.node then "server ${name} ${m.ip}:${toString
+                machines.kubeMaster.port} check \n" else ""
           ) (builtins.attrNames machines)
         )}
     '';
@@ -433,15 +434,6 @@ with pkgs.lib;
   users.mutableUsers = false;
 
   sops.age.keyFile = "/etc/sops/age";
-  sops.secrets.garage_admin_token = {
-    sopsFile = ./secrets/garage_admin_token.yaml;
-  };
-  sops.secrets.garage_metrics_token = {
-    sopsFile = ./secrets/garage_metrics_token.yaml;
-  };
-  sops.secrets.garage_rpc_secret = {
-    sopsFile = ./secrets/garage_rpc_secret.yaml;
-  };
   system.stateVersion = "24.05";
 
 }
