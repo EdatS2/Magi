@@ -56,7 +56,7 @@ with pkgs.lib;
     interface = "enp5s0";
     longhornInterface = "enp0s20f0u9u1";
     longhornIP = "10.20.20.6";
-    disk = "/dev/nvme1n1";
+    disk = "/dev/nvme0n1"; #this changed recently, idk how that works.
     kubernetes.enable = true;
     etcd.enable = true;
     node = true;
