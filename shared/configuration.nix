@@ -432,11 +432,16 @@ with pkgs.lib;
   # because this makes the system fully reproducible, nothing should be configured on the command line
   users.mutableUsers = false;
 
+  sops.age.keyFile = "/etc/sops/age";
+  sops.secrets.garage_admin_token = {
+    sopsFile = ./secrets/garage_admin_token.yaml;
+  };
+  sops.secrets.garage_metrics_token = {
+    sopsFile = ./secrets/garage_metrics_token.yaml;
+  };
+  sops.secrets.garage_rpc_secret = {
+    sopsFile = ./secrets/garage_rpc_secret.yaml;
+  };
   system.stateVersion = "24.05";
 
-  # Enable dev container for melchior
-  devContainer.enable = config.system.name == "melchior";
-  devContainer.ssh.enable = config.system.name == "melchior";
-  devContainer.python.enable = config.system.name == "melchior";
-  devContainer.conda.enable = config.system.name == "melchior";
 }

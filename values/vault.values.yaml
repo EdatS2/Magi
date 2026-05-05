@@ -245,7 +245,7 @@ customVolume: {}
 image:
   pullPolicy: IfNotPresent
   repository: vaultwarden/server
-  tag: "1.35.4"
+  tag: "1.36.0"
 
 imagePullSecrets: []
 nameOverride: ""

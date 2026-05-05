@@ -10,7 +10,7 @@ with builtins;
 with pkgs.lib;
 {
   services.keepalived = {
-    enable = machines.${config.system.name}.master;
+    enable = if machines.${config.system.name}.node then true else false;
     package = pkgs.keepalived;
     vrrpScripts = {
       "check_haproxy" = {
@@ -21,7 +21,7 @@ with pkgs.lib;
     vrrpInstances = {
       "1" = {
         state = if machines.${config.system.name}.master then "MASTER" else "BACKUP";
-        interface = machines.${config.system.name}.interface;
+        interface = "kubernetes";
         virtualIps = [ { addr = machines.kubeMaster.ip; } ];
         priority = if machines.${config.system.name}.master then 101 else 100;
         virtualRouterId = 51;
