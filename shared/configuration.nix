@@ -377,6 +377,7 @@ with pkgs.lib;
         mode tcp
         timeout server 1m
         timeout client 1m
+        timeout connect 5s
 
       listen kubernetes_api
         bind "*:${toString machines.kubeMaster.haproxyPort}"
