@@ -14,8 +14,10 @@ with pkgs.lib;
     package = pkgs.keepalived;
     vrrpScripts = {
       "check_haproxy" = {
-        script = "killall -0 haproxy";
+        script = "${pkgs.busybox}/bin/killall -0 haproxy";
         interval = 2;
+        weight = 2;
+        user = "root";
       };
     };
     vrrpInstances = {

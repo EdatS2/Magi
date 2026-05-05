@@ -355,7 +355,8 @@ with pkgs.lib;
     clusterInit = machines.${config.system.name}.master;
     serverAddr =
       if (machines.${config.system.name}.master == false) then
-        "https://${machines.kubeMaster.ip}:${toString machines.kubeMaster.port}"
+        "https://${machines.kubeMaster.haproxyIp}:${toString
+        machines.kubeMaster.haproxyPort}"
       else
         "";
     extraFlags = [
