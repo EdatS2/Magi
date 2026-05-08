@@ -5,26 +5,30 @@
   inputs.sops-nix.url = "github:Mic92/sops-nix";
 
   outputs =
-    { nixpkgs
-    , disko
-    , sops-nix
-    , ...
+    {
+      nixpkgs,
+      disko,
+      sops-nix,
+      ...
     }:
     let
-      helmfile_plugins = with pkgs; wrapHelm kubernetes-helm {
-        plugins = with pkgs.kubernetes-helmPlugins; [
-          helm-secrets
-          helm-diff
-          helm-git
-        ];
-      };
+      helmfile_plugins =
+        with pkgs;
+        wrapHelm kubernetes-helm {
+          plugins = with pkgs.kubernetes-helmPlugins; [
+            helm-secrets
+            helm-diff
+            helm-git
+          ];
+        };
       helmfile_override = pkgs.helmfile-wrapped.override {
-          inherit (helmfile_plugins) pluginsDir;
+        inherit (helmfile_plugins) pluginsDir;
       };
       pkgs = nixpkgs.legacyPackages.x86_64-linux;
       machines = import ./machines.nix pkgs;
     in
-    with pkgs; with pkgs.lib;
+    with pkgs;
+    with pkgs.lib;
     {
       apps.genCerts = {
         type = "app";
@@ -32,42 +36,49 @@
       };
       apps.showCert = {
         type = "app";
-        program = toString (writers.writeBash "show-cert" ''
-          if [[ $# != 1 ]]; then
-             echo "ERROR: Specify certificate argument"
-             exit 
-          fi
-          CERT="$1"
-          ${openssl}/bin/openssl x509 -text -noout -in "$CERT"
-        '');
+        program = toString (
+          writers.writeBash "show-cert" ''
+            if [[ $# != 1 ]]; then
+               echo "ERROR: Specify certificate argument"
+               exit 
+            fi
+            CERT="$1"
+            ${openssl}/bin/openssl x509 -text -noout -in "$CERT"
+          ''
+        );
       };
       apps.deploy = {
         type = "app";
         program = import ./utils/deploy.nix pkgs machines;
       };
       apps.update = {
-        type= "app";
-        program = toString (writers.writeBash "update" ''
-          if [[ $# != 1 ]]; then
-             echo "ERROR: Specify machine argument"
-             exit 
-          fi
-       # Get the IP address of the specified machine
-            case $1 in
-                ${concatStringsSep "\n" (attrValues
-                (mapAttrs (machineName: machine: ''
-                ${machineName}) IP="${machine.ip}";;
-                '') (filterAttrs(_: machine: machine ? node)
-                machines)))}
-                *) echo "Not a node, ROUTER is not a valid target"; exit 1 ;;
-            esac
-            echo "Target at $IP"
-          nixos-rebuild switch --flake "$PWD#$1" --target-host root@$IP
-          exit 1
-        '');
+        type = "app";
+        program = toString (
+          writers.writeBash "update" ''
+               if [[ $# != 1 ]]; then
+                  echo "ERROR: Specify machine argument"
+                  exit 
+               fi
+            # Get the IP address of the specified machine
+                 case $1 in
+                     ${concatStringsSep "\n" (
+                       attrValues (
+                         mapAttrs (machineName: machine: ''
+                           ${machineName}) IP="${machine.ip}";;
+                         '') (filterAttrs (_: machine: machine ? node) machines)
+                       )
+                     )}
+                     *) echo "Not a node, ROUTER is not a valid target"; exit 1 ;;
+                 esac
+                 echo "Target at $IP"
+               nixos-rebuild switch --flake "$PWD#$1" --target-host root@$IP
+               exit 1
+          ''
+        );
       };
-      nixosConfigurations = genAttrs (attrNames machines)
-        (name: nixpkgs.lib.nixosSystem {
+      nixosConfigurations = genAttrs (attrNames machines) (
+        name:
+        nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit machines; };
           modules = [
@@ -83,10 +94,12 @@
             { nix.nixPath = [ "nixpkgs=${nixpkgs}" ]; }
           ];
         }
-        );
-        # shell to connect with your cluster and manage it
-    devShells.x86_64-linux.default = pkgs.mkShell {
-        packages = with pkgs; [
+      );
+      # shell to connect with your cluster and manage it
+      devShells.x86_64-linux.default = pkgs.mkShell {
+        packages =
+          with pkgs;
+          [
             kubectl
             kustomize
             kustomize-sops
@@ -95,22 +108,24 @@
             sops
             jq
             awscli
-        ] ++
-        [(wrapHelm kubernetes-helm {
-            plugins = with pkgs.kubernetes-helmPlugins; [
+          ]
+          ++ [
+            (wrapHelm kubernetes-helm {
+              plugins = with pkgs.kubernetes-helmPlugins; [
                 helm-diff
                 helm-git
                 helm-secrets
-            ];
-        })] ++
-        [
+              ];
+            })
+          ]
+          ++ [
             helmfile_plugins
             helmfile_override
-        ];
+          ];
         shellHook = ''
-            export KUBECONFIG=./k3s.yaml
+          export KUBECONFIG=./k3s.yaml
         '';
-    };
+      };
 
     };
 }
