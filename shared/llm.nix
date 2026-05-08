@@ -137,11 +137,7 @@ in
                     --ctx-size 120000 --cache-type-k f16 --cache-type-v q8_0
                     --flash-attn on --direct-io --ctx-checkpoints 64
                     --checkpoint-every-n-tokens 2048 --fit-target 2048
-<<<<<<< HEAD
-                    --parallel 2 --reasoning-budget 1000
-=======
-                    --parallel 2 --reasoning-budget 2000
->>>>>>> f03717f (LLM update)
+                    --reasoning-budget 1700
 
 
                     # -hfd Jackrong/Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled-GGUF:Q4_K_S 
