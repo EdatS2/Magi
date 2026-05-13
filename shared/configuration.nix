@@ -371,6 +371,18 @@ with pkgs.lib;
       "--disable local-storage"
       "--tls-san=${machines.kubeMaster.haproxyIp}"
     ];
+    containerdConfigTemplate = if machines.${config.system.name}.nvidia then ''
+      {{ template "base" . }}
+  
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
+      privileged_without_host_devices = false
+      runtime_engine = ""
+      runtime_root = ""
+      runtime_type = "io.containerd.runc.v2"
+  
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
+      BinaryName = "${pkgs.nvidia-container-toolkit.tools}/bin/nvidia-container-runtime.cdi"
+  '' else null;
   };
   services.haproxy = {
     enable = true;
