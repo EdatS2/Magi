@@ -398,6 +398,8 @@ with pkgs.lib;
   llm.enable = machines.${config.system.name}.nvidia;
   powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;
+  hardware.nvidia-container-toolkit.enable =
+  machine.${config.system.name}.nvidia;
   hardware.graphics.enable = true;
   hardware.nvidia =
     if (machines.${config.system.name}.nvidia == true) then
