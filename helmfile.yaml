@@ -39,6 +39,10 @@ repositories:
   url: https://gissilabs.github.io/charts
 - name: nextcloud
   url: https://nextcloud.github.io/helm/
+- name: node-feature
+  url: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+- name: nvdp
+  url: https://nvidia.github.io/k8s-device-plugin
 
 releases:
   # load balancer
@@ -152,6 +156,15 @@ releases:
   secrets:
     - ./secrets/immich.yaml
 
+- name: node-feature-discovery
+  namespace: gpu
+  chart: node-feature/node-feature-discovery
+  version: 0.18.3
+
+- name: nvdp
+  namespace: gpu
+  chart: nvdp/nvidia-device-plugin
+  version: 0.19.1
 # - name: ddns
 #   namespace: applications
 #   chart: ddns/cloudflare-ddns

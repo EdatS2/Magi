@@ -412,8 +412,11 @@ with pkgs.lib;
   llm.enable = machines.${config.system.name}.nvidia;
   powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;
-  hardware.nvidia-container-toolkit.enable =
-  machines.${config.system.name}.nvidia;
+  hardware.nvidia-container-toolkit = {
+      enable = machines.${config.system.name}.nvidia;
+      mount-nvidia-executables = true;
+      extraArgs = [ "--device-name-strategy=uuid" ];
+  };
   hardware.graphics.enable = true;
   hardware.nvidia =
     if (machines.${config.system.name}.nvidia == true) then
