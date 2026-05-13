@@ -63,7 +63,9 @@ with pkgs.lib;
       zlib
       hdparm
       zfs
-    ];
+    ] ++ (if machines.${config.system.name}.nvidia then with pkgs; [
+        nvidia-container-toolkit
+    ] else []);
 
   #boot.kernelPackages = pkgs.linuxPackages_latest;
 
@@ -399,7 +401,7 @@ with pkgs.lib;
   powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;
   hardware.nvidia-container-toolkit.enable =
-  machine.${config.system.name}.nvidia;
+  machines.${config.system.name}.nvidia;
   hardware.graphics.enable = true;
   hardware.nvidia =
     if (machines.${config.system.name}.nvidia == true) then
