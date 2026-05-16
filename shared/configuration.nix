@@ -302,16 +302,12 @@ with pkgs.lib;
         name = "Home";
         unit_system = "metric";
         time_zone = "UTC";
-        #server_host = machines.${config.system.name}.localIp;
       };
       http = {
         server_host = machines.${config.system.name}.localIp;
       };
       frontend = {
         themes = "!include_dir_merge_named themes";
-      };
-      network = {
-        bind_interface = machines.${config.system.name}.interface;
       };
     };
     package = pkgs.home-assistant.override {
@@ -321,7 +317,10 @@ with pkgs.lib;
           zlib-ng
           isal
           pyipp
+	  getmac
           paho-mqtt
+	  pychromecast
+	  radios
         ];
       extraComponents = [
         "default_config"
