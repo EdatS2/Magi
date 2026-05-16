@@ -306,16 +306,12 @@ with pkgs.lib;
       };
       http = {
         server_host = machines.${config.system.name}.localIp;
-
       };
       frontend = {
         themes = "!include_dir_merge_named themes";
       };
       network = {
         bind_interface = machines.${config.system.name}.interface;
-      };
-      zeroconf = {
-        interface = machines.${config.system.name}.interface;
       };
     };
     package = pkgs.home-assistant.override {
@@ -324,6 +320,8 @@ with pkgs.lib;
           psycopg2
           zlib-ng
           isal
+          pyipp
+          paho-mqtt
         ];
       extraComponents = [
         "default_config"

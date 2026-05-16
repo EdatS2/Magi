@@ -148,7 +148,7 @@ in
             healthCheckTimeout: 600  # 10 minutes for large model download + loading
 
             # TTL keeps models in memory for specified seconds after last use
-            ttl: 300  # Keep models loaded for 1 hour (like OLLAMA_KEEP_ALIVE)
+            globalTTL: 300  # Keep models loaded for 1 hour (like OLLAMA_KEEP_ALIVE)
 
             # Groups allow running multiple models simultaneously
             groups:

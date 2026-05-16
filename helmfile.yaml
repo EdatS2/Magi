@@ -41,6 +41,8 @@ repositories:
   url: https://nextcloud.github.io/helm/
 - name: nvdp
   url: https://nvidia.github.io/k8s-device-plugin
+- name: cnpg #cloudnative-pg
+  url: https://cloudnative-pg.github.io/charts
 
 releases:
   # load balancer
@@ -127,6 +129,13 @@ releases:
   secrets:
     - ./secrets/auth.yaml
 
+- name: cnpg-operator
+  namespace: database
+  chart: cnpg/cloudnative-pg
+  set:
+    - name: config.clusterWide
+      value: false
+
 - name: postgres
   namespace: database
   chart: postgreSQL/postgresql
@@ -148,7 +157,7 @@ releases:
 - name: immich
   namespace: applications
   chart: immich/immich
-  version: 0.10.3
+  version: 0.11.1
   values:
     - ./values/immich.values.yaml
   secrets:
@@ -157,7 +166,7 @@ releases:
 - name: nvdp
   namespace: gpu
   chart: nvdp/nvidia-device-plugin
-  version: 0.19.1
+  # version: 0.19.1
   values:
     - ./values/nvdp.values.yaml
 

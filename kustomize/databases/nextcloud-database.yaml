@@ -1,0 +1,42 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: nextcloud-cluster
+  namespace: database
+spec:
+  bootstrap:
+    initdb:
+      import:
+        type: microservice
+        databases:
+          - nextcloud
+        source: 
+          externalCluster: pg1
+
+  externalClusters:
+    - name: pg1
+      connectionParameters:
+        host: postgres-postgresql.database
+        dbname: nextcloud
+        user: postgres
+      password:
+        name: app-secret
+        key: password
+
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-standard-trixie
+  storage:
+    size: 5Gi
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: nextcloud-cluster
+  namespace: database
+spec:
+  selector:
+    matchLabels:
+      cnpg.io/cluster: nextcloud-cluster
+  podMetricsEndpoints:
+  - port: metrics
+

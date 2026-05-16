@@ -1,0 +1,41 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: immich-cluster
+  namespace: database
+spec:
+  bootstrap:
+    initdb:
+      import:
+        type: microservice
+        databases:
+          - immich
+        source: 
+          externalCluster: pg1
+
+  externalClusters:
+    - name: pg1
+      connectionParameters:
+        host: postgres-postgresql.database
+        dbname: immich
+        user: postgres
+      password:
+        name: app-secret
+        key: password
+
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-standard-trixie
+  storage:
+    size: 2Gi
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: immich-cluster
+  namespace: database
+spec:
+  selector:
+    matchLabels:
+      cnpg.io/cluster: immich-cluster
+  podMetricsEndpoints:
+  - port: metrics

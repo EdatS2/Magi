@@ -4,18 +4,20 @@
 
 # These entries are shared between all the Immich components
 
+version: v2.7.5
+
 controllers:
   main:
     containers:
       main:
         env:
-          DB_HOSTNAME: "postgres-postgresql.database.svc.cluster.local"
-          DB_USERNAME: "Immich"
-          DB_DATABASE_NAME: "immich"
+          DB_HOSTNAME: "immich-cluster-rw.database.svc.cluster.local"
+          DB_USERNAME: "app"
+          DB_DATABASE_NAME: "app"
           # -- You should provide your own secret outside of this helm-chart and use `postgresql.global.postgresql.auth.existingSecret` to provide credentials to the postgresql instance
           IMMICH_MACHINE_LEARNING_URL: '{{ printf "http://%s-machine-learning:3003" .Release.Name }}'
         image:
-          tag: v2.7.5
+          tag: '{{ .Values.version }}'
 
 
 immich:
@@ -31,7 +33,7 @@ immich:
   # configuration is immich-config.json converted to yaml
   # ref: https://immich.app/docs/install/config-file/
   #
-  configuration: 
+  configuration:
     trash:
       enabled: true
       days: 30
@@ -41,11 +43,11 @@ immich:
     oauth:
       enabled: true
       scope: openid email profile
-      signingAlgorithm: RS256
+      signing_algorithm: RS256
       storageLabelClaim: preferred_username
       defaultStorageQuota: 20
       autoLaunch: true
-    passwordLogin: 
+    passwordLogin:
       enabled: false
     notifications:
       smtp:
@@ -98,22 +100,33 @@ server:
         - host: immich.salverdaserver.nl
           paths:
             - path: "/"
-      tls: 
+      tls:
       - hosts:
         - immich.salverdaserver.nl
         secretName: immich-tls
 
 machine-learning:
-  enabled: false
+  enabled: true
   controllers:
     main:
+      pod:
+        runtimeClassName: 'nvidia'
       containers:
         main:
           image:
             repository: ghcr.io/immich-app/immich-machine-learning
+            tag: '{{ .Values.version }}-cuda'
             pullPolicy: IfNotPresent
           env:
             TRANSFORMERS_CACHE: /cache
+          resources:
+            limits:
+              nvidia.com/gpu: "1"
+      tolerations:
+        - key: nvidia.com/gpu
+          operator: Exists
+          effect: NoSchedule
+
   persistence:
     cache:
       enabled: true

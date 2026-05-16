@@ -387,13 +387,13 @@ externalDatabase:
   type: postgresql
 
   ## Database host. You can optionally include a colon delimited port like "myhost:1234"
-  host: "postgres-postgresql.database.svc.cluster.local"
+  host: "nextcloud-cluster-rw.database.svc.cluster.local"
 
   ## Database user
-  user: Nextcloud
+  user: app
 
   ## Database name
-  database: nextcloud
+  database: app
 
   ## Use a existing secret
   existingSecret:
