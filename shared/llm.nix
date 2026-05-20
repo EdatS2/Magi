@@ -2,7 +2,7 @@
 { lib, pkgs, config, ... }:
 let 
     cfg = config.llm.enable;
-# last updated on 5th of april 2026
+# last updated on 19th of may 2026
     llama-cpp =
       (pkgs.llama-cpp.override {
         cudaSupport = true;
@@ -12,12 +12,12 @@ let
         blasSupport = true;
       }).overrideAttrs
         (oldAttrs: rec {
-          version = "8744";
+          version = "9222";
           src = pkgs.fetchFromGitHub {
             owner = "ggml-org";
             repo = "llama.cpp";
             tag = "b${version}";
-            hash = "sha256-xLsJ8FjDzneyXlGXuGF5RV4xo3VHkMjNRGVPxS5Ihf0=";
+            hash = "sha256-Ws0a2qkgTFoeUuzg6tKbY6PfDP+0/9D9DTx21fLoFak=";
             # hash = "sha256-0000000000000000000000000000000000000000000=";
 
             leaveDotGit = true;
@@ -26,7 +26,8 @@ let
               find "$out" -name .git -print0 | xargs -0 rm -rf
             '';
           };
-          npmDepsHash = "sha256-eeftjKt0FuS0Dybez+Iz9VTVMA4/oQVh+3VoIqvhVMw=";
+          npmDepsHash = "sha256-Po5SWJv3vmcBR7y62G9/CfvI3Lk/MYdjFMTTy2dsgoY=";
+          npmRoot = "tools/ui";
           # npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
           # Enable native CPU optimizations (AVX, AVX2, etc.)
           cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
@@ -39,7 +40,7 @@ let
             export NIX_ENFORCE_NO_NATIVE=0
             ${oldAttrs.preConfigure or ""}
           '';
-          postPatch = '''';
+          # postPatch = '''';
         });
          # llama-swap from GitHub releases
         llama-swap = pkgs.runCommand "llama-swap" { } ''
@@ -122,11 +123,41 @@ in
               "Qwen:35B": 
                 cmd: | 
                     ${llama-cpp}/bin/llama-server 
-                    -hf unsloth/Qwen3.6-35B-A3B-GGUF:UD-IQ3_S --port ''${PORT}
+                    -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-IQ3_XXS
+                    --port ''${PORT}
                     --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
-                    --ctx-size 60000 --cache-type-k q8_0 --cache-type-v q4_1
+                    --ctx-size 64000 --cache-type-k q4_1 --cache-type-v q4_1
+                    -ctkd q4_1 -ctvd q4_1
                     --flash-attn on --direct-io --ctx-checkpoints 64
-                    --checkpoint-every-n-tokens 2048 --fit-target 2048
+                    --checkpoint-every-n-tokens 2048 
+                    --spec-type draft-mtp --spec-draft-n-max 2
+                    --fit-target 2048
+
+              # ADDED 17-05-2026
+              "Qwen:27B": 
+                cmd: | 
+                    ${llama-cpp}/bin/llama-server 
+                    -hf unsloth/Qwen3.6-27B-MTP-GGUF:UD-IQ3_XXS
+                    --port ''${PORT}
+                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
+                    --ctx-size 32000 --cache-type-k q4_1 --cache-type-v q4_1
+                    -ctkd q4_1 -ctvd q4_1
+                    --flash-attn on --direct-io --ctx-checkpoints 64
+                    --checkpoint-every-n-tokens 2048 -np 1
+                    --spec-type draft-mtp --spec-draft-n-max 2
+
+              "Qwen:27B-nothink": 
+                cmd: | 
+                    ${llama-cpp}/bin/llama-server 
+                    -hf unsloth/Qwen3.6-27B-MTP-GGUF:UD-IQ3_XXS
+                    --port ''${PORT}
+                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
+                    --ctx-size 32000 --cache-type-k q4_1 --cache-type-v q4_1
+                    -ctkd q4_1 -ctvd q4_1
+                    --flash-attn on --direct-io --ctx-checkpoints 64
+                    --checkpoint-every-n-tokens 2048 -np 1
+                    --spec-type draft-mtp --spec-draft-n-max 2 --reasoning off
+
             
               # ADDED 02-04-2026
               "Gemma:26B": 
@@ -134,7 +165,7 @@ in
                     ${llama-cpp}/bin/llama-server 
                     -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-Q3_K_XL --port ''${PORT}
                     --threads 18 --jinja --top-k 64 --temp 1.5
-                    --ctx-size 120000 --cache-type-k f16 --cache-type-v q8_0
+                    --ctx-size 65556 --cache-type-k f16 --cache-type-v q8_0
                     --flash-attn on --direct-io --ctx-checkpoints 64
                     --checkpoint-every-n-tokens 2048 --fit-target 2048
                     --reasoning-budget 1700
