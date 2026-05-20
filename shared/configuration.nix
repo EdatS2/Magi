@@ -148,6 +148,12 @@ with pkgs.lib;
         interface = machines.${config.system.name}.longhornInterface;
       };
     };
+    interfaces.${machines.${config.system.name}.interface}.ipv4.addresses = [
+    {
+        address = machines.${config.system.name}.localIp;
+        prefixLength = 24;
+    }
+    ];
     interfaces.kubernetes.ipv4.addresses = [
       {
         address = machines.${config.system.name}.ip;

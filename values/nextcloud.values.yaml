@@ -249,13 +249,13 @@ nextcloud:
   
   extraEnv:
     - name: PHP_FPM_PM_MAX_CHILDREN
-      value: "60"
+      value: "360"
     - name: PHP_FPM_PM_START_SERVERS
-      value: "10"
+      value: "80"
     - name: PHP_FPM_PM_MIN_SPARE_SERVERS
-      value: "10"
+      value: "80"
     - name: PHP_FPM_PM_MAX_SPARE_SERVERS
-      value: "20"
+      value: "280"
     - name: SERVER_ID
       value: "8494d0cc2f2c4fa9"
 
