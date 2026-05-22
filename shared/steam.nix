@@ -2,6 +2,19 @@
 { lib, pkgs, config, ... }:
 let
   cfg = config.steam_server;
+  
+  labwcConfigDir = pkgs.runCommand "labwc-config" { } ''
+    mkdir -p $out
+    ln -s ${lib.getExe labwcAutostart} $out/autostart
+  '';
+    # Signals systemd that labwc is ready, which unblocks sunshine.service.
+  # This is the only entry in labwc's autostart for this minimal setup.
+  # Add wallpaper, polkit agents, or application launchers here as needed.
+  labwcAutostart = pkgs.writeShellApplication {
+    name           = "labwc-autostart";
+    runtimeInputs  = [ pkgs.systemd ];
+    text           = ''systemd-notify READY=1'';
+  };
 in
 {
   options.steam_server = {
@@ -19,23 +32,28 @@ in
 
     # --- Headless Wayland compositor (labwc) ---
     # Runs in the sunshine user's default session
-    systemd.user.services.labwc = {
-      enable = true;
-      serviceConfig = {
-        Environment = [
-          "WLR_BACKENDS=headless,libinput"
-          "WLR_LOG=verbose"
-          "GBM_BACKEND=nvidia-drm"
-          "__GL_GSYNC_ALLOWED=0"
-          "__GL_VRR_ALLOWED=0"
-          "__GLX_VENDOR_LIBRARY_NAME=nvidia"
-        ];
-        ExecStart = "${pkgs.labwc}/bin/labwc";
-        Restart = "always";
-        RestartSec = 3;
-      };
-      wantedBy = [ "default.target" ];
+      systemd.user.services.headless-labwc = {
+    description = "Headless Wayland compositor (labwc)";
+    wantedBy    = [ "default.target" ];
+    after       = [ "basic.target" ];
+    requires    = [ "dbus.socket" ];
+    wants       = [ "dbus.socket" ];
+    serviceConfig = {
+      Type           = "notify";
+      NotifyAccess   = "all";
+      ExecStart      = "${pkgs.labwc}/bin/labwc -C ${labwcConfigDir}";
+      KillMode       = "mixed";
+      TimeoutStopSec = 15;
     };
+    environment = {
+      WLR_BACKENDS                     = "headless,libinput";
+      WLR_LIBINPUT_NO_DEVICES          = "1";
+      LIBSEAT_BACKEND                  = "noop";
+      LABWC_UPDATE_ACTIVATION_ENV      = "1";
+      WLR_SCENE_DISABLE_DIRECT_SCANOUT = "0";
+      WLR_NO_HARDWARE_CURSORS          = "1";
+    };
+  };
 
     # --- Sunshine user ---
     users.users.sunshine = {
