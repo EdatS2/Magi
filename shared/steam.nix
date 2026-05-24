@@ -28,12 +28,12 @@ in
       wants       = [ "multi-user.target" ];
       requiredBy  = [ "sunshine-container.service" ];
       serviceConfig = {
-        Type            = "notify";
+        Type            = "simple";
         Restart         = "on-failure";
         RestartSec      = 5;
         ExecStart       = "${vuinputd-pkgs.vuinputd}/bin/vuinputd --major 120 --minor 414795 --placement on-host";
         DeviceAllow     = "char-cuse rwm";
-        ReadWritePaths  = "/run/vuinputd";
+        RuntimeDirectory = "vuinputd";
       };
     };
 
