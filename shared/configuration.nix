@@ -293,7 +293,6 @@ with pkgs.lib;
       AllowUsers = [
         "admin"
         "root"
-        "sunshine"
       ];
       PermitRootLogin = "yes";
     };
