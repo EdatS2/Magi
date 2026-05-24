@@ -123,7 +123,7 @@ releases:
 - name: authentik
   namespace: auth
   chart: goauthentik/authentik
-  version: 2026.2.2
+  version: 2026.5.0
   values:
     - ./values/auth.values.yaml
   secrets:

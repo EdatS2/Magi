@@ -423,8 +423,8 @@ with pkgs.lib;
         )}
     '';
   };
-  steam_server.enable = machines.${config.system.name}.nvidia;
   llm.enable = machines.${config.system.name}.nvidia;
+  steam.enable = machines.${config.system.name}.nvidia;
   powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;
   hardware.nvidia-container-toolkit = {

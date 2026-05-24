@@ -1,133 +1,75 @@
-# Headless Steam + Sunshine streaming server
-{ lib, pkgs, config, ... }:
+# Steam (Sunshine + vuinputd) — host services + nspawn container
+# Only enabled on melchior (NVIDIA GPU machines)
+
+{ config, pkgs, lib, machines, ... }:
+
 let
-  cfg = config.steam_server;
-  
-  labwcConfigDir = pkgs.runCommand "labwc-config" { } ''
-    mkdir -p $out
-    ln -s ${lib.getExe labwcAutostart} $out/autostart
-  '';
-    # Signals systemd that labwc is ready, which unblocks sunshine.service.
-  # This is the only entry in labwc's autostart for this minimal setup.
-  # Add wallpaper, polkit agents, or application launchers here as needed.
-  labwcAutostart = pkgs.writeShellApplication {
-    name           = "labwc-autostart";
-    runtimeInputs  = [ pkgs.systemd ];
-    text           = ''systemd-notify READY=1'';
-  };
+  cfg = config.steam.enable;
+  vuinputd-pkgs = import ./vuinput.nix { inherit pkgs; };
 in
 {
-  options.steam_server = {
-    enable = lib.mkEnableOption "Enable Steam headless streaming server";
+  options.steam = {
+    enable = lib.mkEnableOption "Enable Steam (Sunshine + vuinputd) setup";
   };
 
-  config = lib.mkIf cfg.enable {
-    # --- Audio (Pipewire/WirePlumber) ---
-    hardware.pulseaudio.enable = false;
-    security.rtkit.enable = true;
-    services.pipewire.enable = true;
-    services.pipewire.alsa.enable = true;
-    services.pipewire.alsa.support32Bit = true;
-    services.pipewire.wireplumber.enable = true;
+  config = lib.mkIf cfg {
 
-    # --- Headless Wayland compositor (labwc) ---
-    # Runs in the sunshine user's default session
-      systemd.user.services.headless-labwc = {
-    description = "Headless Wayland compositor (labwc)";
-    wantedBy    = [ "default.target" ];
-    after       = [ "basic.target" ];
-    requires    = [ "dbus.socket" ];
-    wants       = [ "dbus.socket" ];
-    serviceConfig = {
-      Type           = "notify";
-      NotifyAccess   = "all";
-      ExecStart      = "${pkgs.labwc}/bin/labwc -C ${labwcConfigDir}";
-      KillMode       = "mixed";
-      TimeoutStopSec = 15;
-    };
-    environment = {
-      WLR_BACKENDS                     = "headless,libinput";
-      WLR_LIBINPUT_NO_DEVICES          = "1";
-      LIBSEAT_BACKEND                  = "noop";
-      LABWC_UPDATE_ACTIVATION_ENV      = "1";
-      WLR_SCENE_DISABLE_DIRECT_SCANOUT = "0";
-      WLR_NO_HARDWARE_CURSORS          = "1";
-    };
-  };
+    # ── vuinputd: udev rules ────────────────────────────────────────────────────
 
-    # --- Sunshine user ---
-    users.users.sunshine = {
-      isNormalUser = true;
-      home = "/home/sunshine";
-      description = "Sunshine Server";
-      extraGroups = [ "wheel" "networkmanager" "input" "video" "sound" ];
-      openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAPsp/GP+FOMXJmr34gO5055gqvlAF7Q/QK72XXBIa6O tadesalverda@outlook.com"
-      ];
-      hashedPassword =
-        "$y$j9T$yqwYRrZy5iBJVX86iejJq.$.kautymt0ch6mTqgS95z19BqA9cUczPbd1rjM3PtRG7";
-    };
+    # udev rules from the derivation are at $out/etc/udev/rules.d/ —
+    # NixOS picks these up automatically via services.udev.packages
+    services.udev.packages = [ vuinputd-pkgs.vuinputd ];
 
-    # Enable linger for sunshine user (user services start at boot)
-    systemd.services.enable-linger-sunshine = {
-      enable = true;
-      description = "Enable linger for sunshine user";
+    # ── vuinputd: systemd service ──────────────────────────────────────────────
+
+    systemd.services.vuinputd = {
+      description = "vuinputd - Virtual uinput daemon";
+      after       = [ "multi-user.target" ];
+      wants       = [ "multi-user.target" ];
+      requiredBy  = [ "sunshine-container.service" ];
       serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${pkgs.systemd}/bin/loginctl enable-linger sunshine";
+        Type            = "notify";
+        Restart         = "on-failure";
+        RestartSec      = 5;
+        ExecStart       = "${vuinputd-pkgs.vuinputd}/bin/vuinputd --major 120 --minor 414795 --placement on-host";
+        DeviceAllow     = "char-cuse rwm";
+        ReadWritePaths  = "/run/vuinputd";
       };
-      wantedBy = [ "multi-user.target" ];
     };
 
-    # --- Sunshine service ---
-    services.sunshine = {
-      enable = true;
+    # ── Sunshine nspawn container ──────────────────────────────────────────────
+
+    containers.sunshine-container = {
       autoStart = true;
-      openFirewall = true;
-      capSysAdmin = true;
-      package = pkgs.sunshine.override { cudaSupport = true; };
-      settings = {
-        sunshine_name = "melchior";
-        capture = "wlr";
-        output_name = "3";
-        video_codec = "h264";
-        audio_codec = "opus";
-      };
-      applications = {
-        env = {
-          PATH = "$PATH:/home/sunshine/.local/bin";
+      config    = import ./headless.nix;
+      bindMounts = {
+        "/dev/uinput" = {
+          hostPath   = "/dev/vuinput";
+          isReadOnly = false;
         };
-        apps = [
-          {
-            name = "Steam";
-            exclude-global-prep-cmd = "false";
-            auto-detach = "true";
-            detached = [
-              "${pkgs.util-linux}/bin/setsid ${pkgs.steam}/bin/steam steam://open/bigpicture"
-            ];
-            image-path = "steam.png";
-          }
-        ];
+        "/dev/dri" = {
+          hostPath   = "/dev/dri";
+          isReadOnly = false;
+        };
+        "/dev/input" = {
+          hostPath   = "/run/vuinputd/vuinput/dev-input";
+          isReadOnly = false;
+        };
       };
+      allowedDevices = [
+        {
+          node     = "/dev/vuinput";
+          modifier = "rw";
+        }
+        {
+          node     = "/dev/dri/card0";
+          modifier = "rw";
+        }
+        {
+          node     = "/dev/dri/renderD128";
+          modifier = "rw";
+        }
+      ];
     };
-
-    # Firewall for Sunshine (manual in case openFirewall doesn't cover all)
-    networking.firewall.allowedTCPPorts = [ 47984 47989 47990 48010 ];
-    networking.firewall.allowedUDPPorts = [ 47998 47999 48000 48002 48010 ];
-
-    # Avahi for discovery
-    services.avahi.publish.userServices = true;
-
-    # Input simulation
-    boot.kernelModules = [ "uinput" ];
-    services.udev.extraRules = ''
-      KERNEL=="uinput", GROUP="input", MODE="0660", OPTIONS+="static_node=uinput"
-    '';
-
-    # Force stop udisks2
-    services.udisks2.enable = lib.mkForce false;
-
-    # Steam
-    programs.steam.enable = true;
   };
 }
