@@ -115,16 +115,8 @@ in
 
   # ── Networking ────────────────────────────────────────────────────────────────
 
-  # nspawn creates a veth pair; networkd picks up an IP via DHCP on host0.
-  # Find the container's IP with: ip addr show host0 (inside the container)
-  networking.useNetworkd = true;
-  systemd.network = {
-    enable = true;
-    networks."10-host0" = {
-      matchConfig.Name   = "host0";
-      networkConfig.DHCP = "yes";
-    };
-  };
+  # nspawn creates a veth pair via host0. Network config is inherited
+  # from the NixOS container framework — no explicit networking config needed.
 
   # Moonlight requires these ports to be open.
   networking.firewall.allowedTCPPorts = [ 47984 47989 47990 48010 ];
