@@ -63,9 +63,16 @@ with pkgs.lib;
       zlib
       hdparm
       zfs
-    ] ++ (if machines.${config.system.name}.nvidia then with pkgs; [
-        nvidia-container-toolkit
-    ] else []);
+    ]
+    ++ (
+      if machines.${config.system.name}.nvidia then
+        with pkgs;
+        [
+          nvidia-container-toolkit
+        ]
+      else
+        [ ]
+    );
 
   #boot.kernelPackages = pkgs.linuxPackages_latest;
 
@@ -149,10 +156,10 @@ with pkgs.lib;
       };
     };
     interfaces.${machines.${config.system.name}.interface}.ipv4.addresses = [
-    {
+      {
         address = machines.${config.system.name}.localIp;
         prefixLength = 24;
-    }
+      }
     ];
     interfaces.kubernetes.ipv4.addresses = [
       {
@@ -188,7 +195,7 @@ with pkgs.lib;
         7946 # metallb speaker
         179 # BGP
         9099 # HEALTH check
-        6800 #haproxy
+        6800 # haproxy
         10250 # kubernetes metrics server
       ];
       allowedUDPPorts = [
@@ -315,6 +322,9 @@ with pkgs.lib;
       frontend = {
         themes = "!include_dir_merge_named themes";
       };
+      "automation ui" = "!include automations.yaml";
+      "scene ui" = "!include scenes.yaml";
+      "script ui" = "!include scripts.yaml";
     };
     package = pkgs.home-assistant.override {
       extraPackages =
@@ -323,10 +333,10 @@ with pkgs.lib;
           zlib-ng
           isal
           pyipp
-	  getmac
+          getmac
           paho-mqtt
-	  pychromecast
-	  radios
+          pychromecast
+          radios
         ];
       extraComponents = [
         "default_config"
@@ -360,8 +370,7 @@ with pkgs.lib;
     clusterInit = machines.${config.system.name}.master;
     serverAddr =
       if (machines.${config.system.name}.master == false) then
-        "https://${machines.kubeMaster.haproxyIp}:${toString
-        machines.kubeMaster.haproxyPort}"
+        "https://${machines.kubeMaster.haproxyIp}:${toString machines.kubeMaster.haproxyPort}"
       else
         "";
     extraFlags = [
@@ -374,18 +383,22 @@ with pkgs.lib;
       "--disable local-storage"
       "--tls-san=${machines.kubeMaster.haproxyIp}"
     ];
-    containerdConfigTemplate = if machines.${config.system.name}.nvidia then ''
-      {{ template "base" . }}
-  
-      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
-      privileged_without_host_devices = false
-      runtime_engine = ""
-      runtime_root = ""
-      runtime_type = "io.containerd.runc.v2"
-  
-      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
-      BinaryName = "${pkgs.nvidia-container-toolkit.tools}/bin/nvidia-container-runtime.cdi"
-  '' else null;
+    containerdConfigTemplate =
+      if machines.${config.system.name}.nvidia then
+        ''
+          {{ template "base" . }}
+
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia]
+          privileged_without_host_devices = false
+          runtime_engine = ""
+          runtime_root = ""
+          runtime_type = "io.containerd.runc.v2"
+
+          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.nvidia.options]
+          BinaryName = "${pkgs.nvidia-container-toolkit.tools}/bin/nvidia-container-runtime.cdi"
+        ''
+      else
+        null;
   };
   services.haproxy = {
     enable = true;
@@ -405,8 +418,7 @@ with pkgs.lib;
             let
               m = machines.${name};
             in
-            if m.node then "server ${name} ${m.ip}:${toString
-                machines.kubeMaster.port} check \n" else ""
+            if m.node then "server ${name} ${m.ip}:${toString machines.kubeMaster.port} check \n" else ""
           ) (builtins.attrNames machines)
         )}
     '';
@@ -416,9 +428,9 @@ with pkgs.lib;
   powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;
   hardware.nvidia-container-toolkit = {
-      enable = machines.${config.system.name}.nvidia;
-      mount-nvidia-executables = true;
-      extraArgs = [ "--device-name-strategy=uuid" ];
+    enable = machines.${config.system.name}.nvidia;
+    mount-nvidia-executables = true;
+    extraArgs = [ "--device-name-strategy=uuid" ];
   };
   hardware.graphics.enable = true;
   hardware.nvidia =
