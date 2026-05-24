@@ -35,14 +35,10 @@ in
 
     doCheck = false;
 
-    installPhase = ''
-      runHook preInstall
-
+    preInstall = ''
       mkdir -p $out/etc/udev/rules.d
       cp vuinputd/udev/90-vuinputd-protect.rules $out/etc/udev/rules.d/
       cp vuinputd/udev/90-vuinputd.hwdb $out/etc/udev/rules.d/
-
-      runHook postInstall
     '';
 
     meta = {
