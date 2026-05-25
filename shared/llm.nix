@@ -69,21 +69,6 @@ in
             # This config uses llama.cpp's server to serve models on demand
 
             models:  # Ordered from newest to oldest
-              # Uploaded 2025-08-02, size 11.3 GB, max ctx: 131072, layers: 24
-              "gpt-oss-medium:20b":
-                cmd: |
-                  ${llama-cpp}/bin/llama-server
-                  -hf ggml-org/gpt-oss-20b-GGUF
-                  --port ''${PORT}
-                  --threads 18
-                  --chat-template-kwargs '{"reasoning_effort": "high"}'
-                  --jinja
-                  --ctx-size 65536
-                  --cache-type-k q8_0
-                  --cache-type-v q4_1
-                  --flash-attn on
-                  --direct-io
-
               # Uploaded 2025-09-04, size 0.3 GB, max ctx: 2048, layers: 24
               "embeddinggemma:300m":
                 cmd: |
@@ -106,9 +91,6 @@ in
 
               # Alternative model -hf unsloth/GLM-4.7-Flash-GGUF:Q4_K_M
 
-              # ADDED 14-02-2026
-              "GLM-4.7:30b":
-                cmd: ${llama-cpp}/bin/llama-server -hf DavidAU/GLM-4.7-Flash-Uncensored-Heretic-NEO-CODE-Imatrix-MAX-GGUF:Q4_K_M --port ''${PORT} --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95 --ctx-size 65536 --cache-type-k q8_0 --cache-type-v q4_0 --flash-attn on --direct-io # --parallel 2
 
               # ADDED 19-02-2026
               "Cydonia:24B":
@@ -137,7 +119,7 @@ in
               "Qwen:27B": 
                 cmd: | 
                     ${llama-cpp}/bin/llama-server 
-                    -hf unsloth/Qwen3.6-27B-MTP-GGUF:UD-IQ3_XXS
+                    -hf Jackrong/Qwopus3.6-27B-v2-MTP-GGUF:Q3_K_M
                     --port ''${PORT}
                     --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
                     --ctx-size 32000 --cache-type-k q4_1 --cache-type-v q4_1
@@ -149,7 +131,7 @@ in
               "Qwen:27B-nothink": 
                 cmd: | 
                     ${llama-cpp}/bin/llama-server 
-                    -hf unsloth/Qwen3.6-27B-MTP-GGUF:UD-IQ3_XXS
+                    -hf Jackrong/Qwopus3.6-27B-v2-MTP-GGUF:Q3_K_M
                     --port ''${PORT}
                     --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
                     --ctx-size 32000 --cache-type-k q4_1 --cache-type-v q4_1
@@ -158,28 +140,10 @@ in
                     --checkpoint-every-n-tokens 2048 -np 1
                     --spec-type draft-mtp --spec-draft-n-max 2 --reasoning off
 
-            
-              # ADDED 02-04-2026
-              "Gemma:26B": 
-                cmd: | 
-                    ${llama-cpp}/bin/llama-server 
-                    -hf unsloth/gemma-4-26B-A4B-it-GGUF:UD-Q3_K_XL --port ''${PORT}
-                    --threads 18 --jinja --top-k 64 --temp 1.5
-                    --ctx-size 65556 --cache-type-k f16 --cache-type-v q8_0
-                    --flash-attn on --direct-io --ctx-checkpoints 64
-                    --checkpoint-every-n-tokens 2048 --fit-target 2048
-                    --reasoning-budget 1700
-
-
-                    # -hfd Jackrong/Qwen3.5-0.8B-Claude-4.6-Opus-Reasoning-Distilled-GGUF:Q4_K_S 
-                    # -ctkd q8_0 -ctvd q4_1 -cd 65536
-
-
-
             healthCheckTimeout: 600  # 10 minutes for large model download + loading
 
             # TTL keeps models in memory for specified seconds after last use
-            globalTTL: 300  # Keep models loaded for 1 hour (like OLLAMA_KEEP_ALIVE)
+            globalTTL: 1200  # Keep models loaded for 1 hour (like OLLAMA_KEEP_ALIVE)
 
             # Groups allow running multiple models simultaneously
             groups:
