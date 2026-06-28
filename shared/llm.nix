@@ -141,8 +141,8 @@ in
                     --spec-type draft-mtp --spec-draft-n-max 2 --reasoning off
                     --no-mmproj
 
-            # ADDED 28-06-2026
-            "Gemma4-Dark-Scarlett:26B":
+              # ADDED 28-06-2026
+              "Gemma4-Dark-Scarlett:26B":
                 cmd: |
                     ${llama-cpp}/bin/llama-server
                     -hf ReadyArt/Dark-Scarlett-v1.0-26B-A4B-GGUF:Q4_0
