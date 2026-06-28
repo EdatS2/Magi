@@ -140,6 +140,16 @@ in
                     --checkpoint-every-n-tokens 2048 -np 1
                     --spec-type draft-mtp --spec-draft-n-max 2 --reasoning off
 
+            # ADDED 28-06-2026
+            "Gemma4-Dark-Scarlett:26B":
+                cmd: |
+                    -hf ReadyArt/Dark-Scarlett-v1.0-26B-A4B-GGUF:Q4_0
+                    --port ''${PORT}
+                    --threads 18 --jinja --min-p 0.05 --temp 1.0 --top-p 0.95
+                    --ctx-size 16000 --cache-type-k q4_1 --cache-type-v q4_1
+                    -ctkd q4_1 -ctvd q4_1
+                    --flash-attn on --direct-io --ctx-checkpoints 64
+
             healthCheckTimeout: 600  # 10 minutes for large model download + loading
 
             # TTL keeps models in memory for specified seconds after last use
