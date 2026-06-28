@@ -88,19 +88,6 @@ in
                   --ubatch-size 2048
                   --reranking
 
-
-              # Alternative model -hf unsloth/GLM-4.7-Flash-GGUF:Q4_K_M
-
-
-              # ADDED 19-02-2026
-              "Cydonia:24B":
-                cmd: |
-                    ${llama-cpp}/bin/llama-server 
-                    -hf bartowski/TheDrummer_Cydonia-24B-v4.3-GGUF:Q3_K_M 
-                    --port ''${PORT} --threads 18 --jinja --min-p 0.01 
-                    --temp 1.0 --top-p 0.95 
-                    --ctx-size 34000 --cache-type-k q8_0 --cache-type-v q4_1 --flash-attn on --direct-io
-
               # ADDED 11-03-2026
               "Qwen:35B": 
                 cmd: | 
