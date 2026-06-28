@@ -143,6 +143,7 @@ in
             # ADDED 28-06-2026
             "Gemma4-Dark-Scarlett:26B":
                 cmd: |
+                    ${llama-cpp}/bin/llama-server
                     -hf ReadyArt/Dark-Scarlett-v1.0-26B-A4B-GGUF:Q4_0
                     --port ''${PORT}
                     --threads 18 --jinja --min-p 0.05 --temp 1.0 --top-p 0.95
