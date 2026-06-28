@@ -2,7 +2,7 @@
 { lib, pkgs, config, ... }:
 let 
     cfg = config.llm.enable;
-# last updated on 19th of may 2026
+# last updated on 3rd of june 2026
     llama-cpp =
       (pkgs.llama-cpp.override {
         cudaSupport = true;
@@ -12,12 +12,12 @@ let
         blasSupport = true;
       }).overrideAttrs
         (oldAttrs: rec {
-          version = "9222";
+          version = "9495";
           src = pkgs.fetchFromGitHub {
             owner = "ggml-org";
             repo = "llama.cpp";
             tag = "b${version}";
-            hash = "sha256-Ws0a2qkgTFoeUuzg6tKbY6PfDP+0/9D9DTx21fLoFak=";
+            hash = "sha256-7X3sWEsmPHYbzUM9vRm1iwqHnr9BFL8AGXW8RIEJ9w4=";
             # hash = "sha256-0000000000000000000000000000000000000000000=";
 
             leaveDotGit = true;
@@ -26,7 +26,7 @@ let
               find "$out" -name .git -print0 | xargs -0 rm -rf
             '';
           };
-          npmDepsHash = "sha256-Po5SWJv3vmcBR7y62G9/CfvI3Lk/MYdjFMTTy2dsgoY=";
+          npmDepsHash = "sha256-1iM0LGeI9e+gZEHk46lkBe51DxIhiimfAm9o3Z3m9Ik=";
           npmRoot = "tools/ui";
           # npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
           # Enable native CPU optimizations (AVX, AVX2, etc.)
@@ -96,10 +96,10 @@ in
               "Cydonia:24B":
                 cmd: |
                     ${llama-cpp}/bin/llama-server 
-                    -hf bartowski/TheDrummer_Cydonia-24B-v4.3-GGUF:Q4_K_M 
+                    -hf bartowski/TheDrummer_Cydonia-24B-v4.3-GGUF:Q3_K_M 
                     --port ''${PORT} --threads 18 --jinja --min-p 0.01 
                     --temp 1.0 --top-p 0.95 
-                    --ctx-size 24000 --cache-type-k q4_1 --cache-type-v q4_1 --flash-attn on --direct-io
+                    --ctx-size 34000 --cache-type-k q8_0 --cache-type-v q4_1 --flash-attn on --direct-io
 
               # ADDED 11-03-2026
               "Qwen:35B": 
@@ -111,9 +111,21 @@ in
                     --ctx-size 64000 --cache-type-k q4_1 --cache-type-v q4_1
                     -ctkd q4_1 -ctvd q4_1
                     --flash-attn on --direct-io --ctx-checkpoints 64
-                    --checkpoint-every-n-tokens 2048 
                     --spec-type draft-mtp --spec-draft-n-max 2
                     --fit-target 2048
+
+              # ADDED 11-03-2026
+              "Qwen:35B-nothink": 
+                cmd: | 
+                    ${llama-cpp}/bin/llama-server 
+                    -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-IQ3_XXS
+                    --port ''${PORT}
+                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
+                    --ctx-size 64000 --cache-type-k q4_1 --cache-type-v q4_1
+                    -ctkd q4_1 -ctvd q4_1
+                    --flash-attn on --direct-io --ctx-checkpoints 64
+                    --spec-type draft-mtp --spec-draft-n-max 2
+                    --fit-target 2048 --reasoning off --no-mmproj
 
               # ADDED 17-05-2026
               "Qwen:27B": 
@@ -122,11 +134,12 @@ in
                     -hf Jackrong/Qwopus3.6-27B-v2-MTP-GGUF:Q3_K_M
                     --port ''${PORT}
                     --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
-                    --ctx-size 32000 --cache-type-k q4_1 --cache-type-v q4_1
+                    --ctx-size 24000 --cache-type-k q4_1 --cache-type-v q4_1
                     -ctkd q4_1 -ctvd q4_1
                     --flash-attn on --direct-io --ctx-checkpoints 64
-                    --checkpoint-every-n-tokens 2048 -np 1
                     --spec-type draft-mtp --spec-draft-n-max 2
+                    -np 1
+                    --no-mmproj
 
               "Qwen:27B-nothink": 
                 cmd: | 
@@ -134,11 +147,12 @@ in
                     -hf Jackrong/Qwopus3.6-27B-v2-MTP-GGUF:Q3_K_M
                     --port ''${PORT}
                     --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
-                    --ctx-size 32000 --cache-type-k q4_1 --cache-type-v q4_1
+                    --ctx-size 24000 --cache-type-k q4_1 --cache-type-v q4_1
                     -ctkd q4_1 -ctvd q4_1
                     --flash-attn on --direct-io --ctx-checkpoints 64
-                    --checkpoint-every-n-tokens 2048 -np 1
+                     -np 1
                     --spec-type draft-mtp --spec-draft-n-max 2 --reasoning off
+                    --no-mmproj
 
             # ADDED 28-06-2026
             "Gemma4-Dark-Scarlett:26B":
