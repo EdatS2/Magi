@@ -15,6 +15,7 @@ with pkgs.lib;
     (modulesPath + "/profiles/qemu-guest.nix")
     ./script.nix
     ./steam.nix
+    ./pythonServer.nix
     ./llm.nix
     ./keepalived.nix
   ];
@@ -424,6 +425,7 @@ with pkgs.lib;
   };
   llm.enable = machines.${config.system.name}.nvidia;
   steam.enable = machines.${config.system.name}.nvidia;
+  pythonServer.enable = machines.${config.system.name}.nvidia;
   powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;
   hardware.nvidia-container-toolkit = {

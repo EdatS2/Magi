@@ -2,7 +2,7 @@
 { lib, pkgs, config, ... }:
 let 
     cfg = config.llm.enable;
-# last updated on 3rd of june 2026
+# last updated on 28th of june 2026
     llama-cpp =
       (pkgs.llama-cpp.override {
         cudaSupport = true;
@@ -12,12 +12,12 @@ let
         blasSupport = true;
       }).overrideAttrs
         (oldAttrs: rec {
-          version = "9495";
+          version = "9830";
           src = pkgs.fetchFromGitHub {
             owner = "ggml-org";
             repo = "llama.cpp";
             tag = "b${version}";
-            hash = "sha256-7X3sWEsmPHYbzUM9vRm1iwqHnr9BFL8AGXW8RIEJ9w4=";
+            hash = "sha256-I/WAVJVgCE8y82PgQ4HahAbaWAqMudtlzLAVJP19OAQ=";
             # hash = "sha256-0000000000000000000000000000000000000000000=";
 
             leaveDotGit = true;
@@ -26,7 +26,7 @@ let
               find "$out" -name .git -print0 | xargs -0 rm -rf
             '';
           };
-          npmDepsHash = "sha256-1iM0LGeI9e+gZEHk46lkBe51DxIhiimfAm9o3Z3m9Ik=";
+          npmDepsHash = "sha256-X1DZgmhS/zHTqDT5zq0kywwntthcJ9vRXeqyO3zz6UU=";
           npmRoot = "tools/ui";
           # npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
           # Enable native CPU optimizations (AVX, AVX2, etc.)
@@ -95,11 +95,22 @@ in
                     -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-IQ3_XXS
                     --port ''${PORT}
                     --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
-                    --ctx-size 64000 --cache-type-k q4_1 --cache-type-v q4_1
-                    -ctkd q4_1 -ctvd q4_1
+                    --ctx-size 64000 --cache-type-k q4_0 --cache-type-v q4_0
+                    -ctkd q4_0 -ctvd q4_0
                     --flash-attn on --direct-io --ctx-checkpoints 64
                     --spec-type draft-mtp --spec-draft-n-max 2
-                    --fit-target 2048
+                    --no-mmproj
+
+              "Qwen:35B-vision": 
+                cmd: | 
+                    ${llama-cpp}/bin/llama-server 
+                    -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-IQ3_XXS
+                    --port ''${PORT}
+                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
+                    --ctx-size 64000 --cache-type-k q4_0 --cache-type-v q4_0
+                    -ctkd q4_0 -ctvd q4_0
+                    --flash-attn on --direct-io --ctx-checkpoints 64
+                    --spec-type draft-mtp --spec-draft-n-max 2
 
               # ADDED 11-03-2026
               "Qwen:35B-nothink": 
@@ -140,17 +151,6 @@ in
                      -np 1
                     --spec-type draft-mtp --spec-draft-n-max 2 --reasoning off
                     --no-mmproj
-
-              # ADDED 28-06-2026
-              "Gemma4-Dark-Scarlett:26B":
-                cmd: |
-                    ${llama-cpp}/bin/llama-server
-                    -hf ReadyArt/Dark-Scarlett-v1.0-26B-A4B-GGUF:Q4_0
-                    --port ''${PORT}
-                    --threads 18 --jinja --min-p 0.05 --temp 1.0 --top-p 0.95
-                    --ctx-size 16000 --cache-type-k q4_1 --cache-type-v q4_1
-                    -ctkd q4_1 -ctvd q4_1
-                    --flash-attn on --direct-io --ctx-checkpoints 64
 
             healthCheckTimeout: 600  # 10 minutes for large model download + loading
 
