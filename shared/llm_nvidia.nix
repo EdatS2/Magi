@@ -3,13 +3,21 @@
 let 
     cfg = config.llm.enable;
 # last updated on 28th of june 2026
-    llama-cpp = pkgs.llama-cpp-sycl.overrideAttrs (oldAttrs: rec {
-          version = "10068";
+    llama-cpp =
+      (pkgs.llama-cpp.override {
+        cudaSupport = true;
+        rocmSupport = false;
+        metalSupport = false;
+        # Enable BLAS for optimized CPU layer performance (OpenBLAS)
+        blasSupport = true;
+      }).overrideAttrs
+        (oldAttrs: rec {
+          version = "9830";
           src = pkgs.fetchFromGitHub {
             owner = "ggml-org";
             repo = "llama.cpp";
             tag = "b${version}";
-            hash = "sha256-qiTpqHtc5itWUe83hnlGn7jOUuboD+WPe4+o55LopUQ=";
+            hash = "sha256-I/WAVJVgCE8y82PgQ4HahAbaWAqMudtlzLAVJP19OAQ=";
             # hash = "sha256-0000000000000000000000000000000000000000000=";
 
             leaveDotGit = true;
@@ -18,11 +26,21 @@ let
               find "$out" -name .git -print0 | xargs -0 rm -rf
             '';
           };
+          npmDepsHash = "sha256-X1DZgmhS/zHTqDT5zq0kywwntthcJ9vRXeqyO3zz6UU=";
+          npmRoot = "tools/ui";
           # npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
-          npmDepsHash = "sha256-6s9skw1wzEfm9QKktTqea3J+oudQAsS6O2VnZEMXAdw=";
-          # npmRoot = "tools/ui";
           # Enable native CPU optimizations (AVX, AVX2, etc.)
+          cmakeFlags = (oldAttrs.cmakeFlags or []) ++ [
+            "-DGGML_NATIVE=ON"
+            "-DGGML_CUDA_FA_ALL_QUANTS=ON"
+            "-DCMAKE_CUDA_ARCHITECTURES=86"
+          ];
           # Disable Nix's march=native stripping
+          preConfigure = ''
+            export NIX_ENFORCE_NO_NATIVE=0
+            ${oldAttrs.preConfigure or ""}
+          '';
+          # postPatch = '''';
         });
          # llama-swap from GitHub releases
         llama-swap = pkgs.runCommand "llama-swap" { } ''
@@ -53,8 +71,6 @@ in
             models:  # Ordered from newest to oldest
               # Uploaded 2025-09-04, size 0.3 GB, max ctx: 2048, layers: 24
               "embeddinggemma:300m":
-                env:    
-                    - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
                 cmd: |
                   ${llama-cpp}/bin/llama-server
                   -hf ggml-org/embeddinggemma-300M-GGUF
@@ -62,11 +78,8 @@ in
                   --embeddings
                   --batch-size 2048
                   --ubatch-size 2048
-                  --split-mode none --main-gpu 0
               # Updated 11-03-2026
               "Reranker":
-                env:    
-                    - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
                 cmd: |
                   ${llama-cpp}/bin/llama-server
                   -hf ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF:Q8_0
@@ -74,61 +87,9 @@ in
                   --batch-size 2048
                   --ubatch-size 2048
                   --reranking
-                  --split-mode none --main-gpu 0
 
               # ADDED 11-03-2026
               "Qwen:35B": 
-                env:    
-                    - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
-                    - "ZES_ENABLE_SYSMAN=1"
-                cmd: | 
-                    ${llama-cpp}/bin/llama-server 
-                    -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-IQ4_NL
-                    --port ''${PORT}
-                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
-                    --ctx-size 128000 
-                    --flash-attn on --direct-io --ctx-checkpoints 64
-                    --spec-type draft-mtp --spec-draft-n-max 2
-                    --no-mmproj
-                    -np 2 
-                    --split-mode none --main-gpu 0
-
-              # ADDED 19-07-2026
-              "Gemma:26B": 
-                env:    
-                    - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
-                    - "ZES_ENABLE_SYSMAN=1"
-                cmd: | 
-                    ${llama-cpp}/bin/llama-server 
-                    -hf unsloth/gemma-4-26B-A4B-it-qat-GGUF:UD-Q4_K_XL
-                    --port ''${PORT}
-                    --threads 18 --jinja 
-                    --ctx-size 131072 -ngl 999
-                    -fa 1 --direct-io 
-                    --spec-type draft-mtp --spec-draft-n-max 4
-                    --split-mode none --main-gpu 0
-                    -np 2 --cont-batching
-
-
-              # ADDED 19-07-2026
-              "Gemma:31B": 
-                env:    
-                    - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
-                    - "ZES_ENABLE_SYSMAN=1"
-                cmd: | 
-                    ${llama-cpp}/bin/llama-server 
-                    -hf unsloth/gemma-4-31B-it-qat-GGUF:UD-Q4_K_XL
-                    --port ''${PORT}
-                    --threads 18 --jinja 
-                    --ctx-size 65536 -ngl 999
-                    -fa 1 --direct-io 
-                    --spec-type draft-mtp --spec-draft-n-max 4
-                    --split-mode none --main-gpu 0
-                    -np 2 --cont-batching
-
-              "Qwen:35B-vision": 
-                env:    
-                    - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
                 cmd: | 
                     ${llama-cpp}/bin/llama-server 
                     -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-IQ3_XXS
@@ -138,12 +99,21 @@ in
                     -ctkd q4_0 -ctvd q4_0
                     --flash-attn on --direct-io --ctx-checkpoints 64
                     --spec-type draft-mtp --spec-draft-n-max 2
-                    --split-mode none --main-gpu 0
+                    --no-mmproj
+
+              "Qwen:35B-vision": 
+                cmd: | 
+                    ${llama-cpp}/bin/llama-server 
+                    -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-IQ3_XXS
+                    --port ''${PORT}
+                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
+                    --ctx-size 64000 --cache-type-k q4_0 --cache-type-v q4_0
+                    -ctkd q4_0 -ctvd q4_0
+                    --flash-attn on --direct-io --ctx-checkpoints 64
+                    --spec-type draft-mtp --spec-draft-n-max 2
 
               # ADDED 11-03-2026
               "Qwen:35B-nothink": 
-                env:    
-                    - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
                 cmd: | 
                     ${llama-cpp}/bin/llama-server 
                     -hf unsloth/Qwen3.6-35B-A3B-MTP-GGUF:UD-IQ3_XXS
@@ -154,36 +124,33 @@ in
                     --flash-attn on --direct-io --ctx-checkpoints 64
                     --spec-type draft-mtp --spec-draft-n-max 2
                     --fit-target 2048 --reasoning off --no-mmproj
-                    --split-mode none --main-gpu 0
 
-              # # ADDED 17-05-2026
-              # "Qwen:27B": 
-              #   cmd: | 
-              #       ${llama-cpp}/bin/llama-server 
-              #       -hf Jackrong/Qwopus3.6-27B-v2-MTP-GGUF:Q3_K_M
-              #       --port ''${PORT}
-              #       --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
-              #       --ctx-size 24000 --cache-type-k q8_0 --cache-type-v q8_0 
-              #       -ctkd q8_0 -ctvd q8_0
-              #       --flash-attn on --direct-io --ctx-checkpoints 64
-              #       --spec-type draft-mtp --spec-draft-n-max 2
-              #       -np 1
-              #       --no-mmproj
-              #       --split-mode none --main-gpu 0
-              #
-              # "Qwen:27B-nothink": 
-              #   cmd: | 
-              #       ${llama-cpp}/bin/llama-server 
-              #       -hf Jackrong/Qwopus3.6-27B-v2-MTP-GGUF:Q3_K_M
-              #       --port ''${PORT}
-              #       --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
-              #       --ctx-size 24000 --cache-type-k q4_1 --cache-type-v q4_1
-              #       -ctkd q4_1 -ctvd q4_1
-              #       --flash-attn on --direct-io --ctx-checkpoints 64
-              #        -np 1
-              #       --spec-type draft-mtp --spec-draft-n-max 2 --reasoning off
-              #       --no-mmproj
-                    # --split-mode none --main-gpu 0
+              # ADDED 17-05-2026
+              "Qwen:27B": 
+                cmd: | 
+                    ${llama-cpp}/bin/llama-server 
+                    -hf Jackrong/Qwopus3.6-27B-v2-MTP-GGUF:Q3_K_M
+                    --port ''${PORT}
+                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
+                    --ctx-size 24000 --cache-type-k q4_1 --cache-type-v q4_1
+                    -ctkd q4_1 -ctvd q4_1
+                    --flash-attn on --direct-io --ctx-checkpoints 64
+                    --spec-type draft-mtp --spec-draft-n-max 2
+                    -np 1
+                    --no-mmproj
+
+              "Qwen:27B-nothink": 
+                cmd: | 
+                    ${llama-cpp}/bin/llama-server 
+                    -hf Jackrong/Qwopus3.6-27B-v2-MTP-GGUF:Q3_K_M
+                    --port ''${PORT}
+                    --threads 18 --jinja --min-p 0.01 --temp 1.0 --top-p 0.95
+                    --ctx-size 24000 --cache-type-k q4_1 --cache-type-v q4_1
+                    -ctkd q4_1 -ctvd q4_1
+                    --flash-attn on --direct-io --ctx-checkpoints 64
+                     -np 1
+                    --spec-type draft-mtp --spec-draft-n-max 2 --reasoning off
+                    --no-mmproj
 
             healthCheckTimeout: 600  # 10 minutes for large model download + loading
 

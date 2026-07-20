@@ -27,6 +27,10 @@ with pkgs.lib;
     # enabled = machines.${config.system.name}.zfs;
     extraPools = [ "WDred" ];
   };
+  nixpkgs.overlays = [
+    (import ./llama-cpp-sycl.nix)
+
+  ];
   boot.supportedFilesystems.zfs = machines.${config.system.name}.zfs;
   networking.hostId = "38c2d6ec";
   # boot.loader.efi.canTouchEfiVariables = true;
@@ -64,18 +68,20 @@ with pkgs.lib;
       zlib
       hdparm
       zfs
+      nvtopPackages.intel
     ]
     ++ (
-      if machines.${config.system.name}.nvidia then
+      if machines.${config.system.name}.intel then
         with pkgs;
         [
-          nvidia-container-toolkit
+            clinfo
+            intel-oneapi-toolkit
         ]
       else
         [ ]
     );
 
-  #boot.kernelPackages = pkgs.linuxPackages_latest;
+  # boot.kernelPackages = pkgs.linuxPackages_7_1;
 
   nix.settings.experimental-features = [
     "nix-command"
@@ -423,9 +429,9 @@ with pkgs.lib;
         )}
     '';
   };
-  llm.enable = machines.${config.system.name}.nvidia;
+  llm.enable = machines.${config.system.name}.intel;
   steam.enable = machines.${config.system.name}.nvidia;
-  pythonServer.enable = machines.${config.system.name}.nvidia;
+  pythonServer.enable = false;
   powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;
   hardware.nvidia-container-toolkit = {
@@ -433,7 +439,13 @@ with pkgs.lib;
     mount-nvidia-executables = true;
     extraArgs = [ "--device-name-strategy=uuid" ];
   };
-  hardware.graphics.enable = true;
+  hardware.graphics = {
+        enable = true;
+        extraPackages = with pkgs; [
+            intel-compute-runtime
+        ];
+  };
+
   hardware.nvidia =
     if (machines.${config.system.name}.nvidia == true) then
       {

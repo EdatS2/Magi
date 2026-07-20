@@ -17,6 +17,7 @@ with pkgs.lib;
     hass = false;
     octo = true;
     zfs = false;
+    intel = false;
   };
   # gaspard = {
   #   ip = "10.13.13.2";
@@ -49,6 +50,7 @@ with pkgs.lib;
     hass = true;
     octo = false;
     zfs = false;
+    intel = false;
   };
   melchior = {
     ip = "10.13.13.6";
@@ -65,6 +67,7 @@ with pkgs.lib;
     hass = false;
     octo = false;
     zfs = true;
+    intel = true;
   };
   kubeMaster = {
     ip = "10.13.13.3";
