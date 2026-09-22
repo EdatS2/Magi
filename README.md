@@ -6,7 +6,7 @@ An IaC project for deploying highly available (HA) Kubernetes clusters using Nix
 
 * **NixOS**: Fully reproducible system configuration.
 * **K3s**: Lightweight Kubernetes distribution, managed via a single bootstrapper node.
-* **HA Networking**: Load balancing and high availability managed via `keepalived` and `haproxy`.
+* **HA Networking**: `keepalived` floats a Virtual IP (VIP) across the nodes; `haproxy` on that VIP load balances the k3s API server.
 * **sops-nix**: Secure, declarative secret management integrated into the Nix lifecycle.
 * **Disko**: Declarative disk partitioning and formatting.
 * **Helmfile**: Orchestrates the deployment of all services running within the cluster.
@@ -26,15 +26,24 @@ The entire cluster topology is defined in `machines.nix`. Each node is a functio
 * `zfs`: Enables ZFS pools and object storage (Garage).
 
 ### Cluster-wide Settings (`kubeMaster`)
-The `kubeMaster` block in `machines.nix` defines the Virtual IP (VIP) used by Keepalived and HAProxy:
+The `kubeMaster` block in `machines.nix` defines the API endpoint networking:
 ```nix
   kubeMaster = {
-    ip = "10.13.13.100"; # The VIP
-    gateway = "10.13.13.1"; # BGP Gateway
-    port = 6443; # API Server Port
+    ip = "10.13.13.3";          # Resolved as "kubernetes" in /etc/hosts
+    gateway = "10.13.13.1";     # Gateway on the kubernetes VLAN
+    port = 6443;                # API server port on each node
     name = "kubernetes";
+    haproxyIp = "10.13.13.100"; # VIP floated by keepalived
+    haproxyPort = "6800";       # haproxy load-balancer port
   };
 ```
+
+How the pieces fit together:
+
+* `keepalived` floats the `haproxyIp` VIP across all nodes on the `kubernetes` VLAN (masters have higher priority), tracking the haproxy process for failover.
+* `haproxy` listens on `haproxyPort` (6800) on every node and forwards to each node's API server on `port` (6443).
+* Non-master nodes join the cluster via `https://<haproxyIp>:<haproxyPort>`; the k3s certificate includes the VIP as a SAN.
+* Direct client access (e.g. the gitignored `k3s.yaml`) can also use `https://<haproxyIp>:6443`, which lands on whichever node currently holds the VIP.
 
 ## Secret Management (`sops-nix`)
 
