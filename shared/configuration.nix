@@ -365,6 +365,20 @@ with pkgs.lib;
   virtualisation.docker.logDriver = "json-file";
 
   services.tailscale.enable = true;
+  services.comfyui = {
+    enable = machines.${config.system.name}.intel;
+    gpuSupport = "xpu";  # Enable NVIDIA GPU acceleration (recommended for most users)
+    # gpuSupport = "rocm";  # Enable AMD GPU acceleration
+    # cudaCapabilities = [ "8.9" ];  # Optional: optimize system CUDA packages for RTX 40xx
+    #   Note: Pre-built PyTorch wheels already support all GPU architectures
+    enableManager = true;  # Enable the built-in ComfyUI Manager
+    port = 8188;
+    listenAddress = machines.${config.system.name}.ip;  # Use "0.0.0.0" for network access
+    dataDir = "/var/lib/comfyui";
+    openFirewall = false;
+    # extraArgs = [ "--lowvram" ];
+    # environment = { };
+  };
   services.openiscsi = {
     enable = true;
     name = "iqn.2016-04.com.open-iscsi:${config.system.name}";
@@ -443,6 +457,8 @@ with pkgs.lib;
         enable = true;
         extraPackages = with pkgs; [
             intel-compute-runtime
+            level-zero
+            comfy-ui-xpu
         ];
   };
 

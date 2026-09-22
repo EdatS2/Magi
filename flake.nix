@@ -3,12 +3,14 @@
   inputs.disko.url = "github:nix-community/disko";
   inputs.disko.inputs.nixpkgs.follows = "nixpkgs";
   inputs.sops-nix.url = "github:Mic92/sops-nix";
+  inputs.comfyui-nix.url = "github:utensils/comfyui-nix";
 
   outputs =
     {
       nixpkgs,
       disko,
       sops-nix,
+      comfyui-nix,
       ...
     }:
     let
@@ -81,9 +83,11 @@
         nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           specialArgs = { inherit machines; };
-          modules = [
+          modules = [{
+              nixpkgs.overlays = [ comfyui-nix.overlays.default ];}
             { networking.hostName = name; }
             disko.nixosModules.disko
+            comfyui-nix.nixosModules.default
             ./shared/configuration.nix
             ./hardware-configuration.nix
             # for maintance

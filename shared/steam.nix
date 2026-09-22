@@ -49,9 +49,8 @@ in
     # NAT configuration for the container network
     networking.nat = {
       enable = true;
-      internalInterfaces = [ "ve-sunshine+" ];
-      externalInterface = "kubernetes";
-      internalIPs = [ "10.13.13.0/24" ];
+      internalInterfaces = [ "ve-sunshine+" "ve-python+" ];
+      externalInterface = "enp5s0";
       enableIPv6 = true;
     };
 
