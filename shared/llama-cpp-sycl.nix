@@ -33,11 +33,18 @@ let
       { nativeBuildInputs = [ final.patchelf ]; }
       ''
         mkdir -p $out/lib
-        cp -a ${final.intel-compute-runtime.drivers}/lib/. $out/lib/
+        cp -a ${final.intel-compute-runtime}/lib/. $out/lib/
         chmod -R +w $out/lib
         find $out/lib -type f -name "*.so*" -exec \
           patchelf --add-rpath ${final.intel-graphics-compiler}/lib {} \;
       '';
+
+  ocloc = final.runCommand "ocloc" { preferLocalBuild = true; } ''
+    mkdir -p $out/bin
+    for f in ${final.intel-compute-runtime.out}/bin/ocloc-*; do
+      [ -f "$f" ] && cp "$f" $out/bin/ocloc && break
+    done
+  '';
 in
 {
   llama-cpp-sycl =
@@ -54,10 +61,10 @@ in
           "fortify3"
         ];
 
-        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ 
-            # prev.intel-compute-runtime
-            final.makeWrapper 
-            ];
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+          final.makeWrapper
+          ocloc
+        ];
 
         buildInputs = (old.buildInputs or [ ]) ++ [
           kit
@@ -69,10 +76,10 @@ in
           (cmakeFeature "GGML_SYCL_TARGET" "INTEL")
           (cmakeFeature "CMAKE_PREFIX_PATH" "${kit}/compiler/latest;${kit}/mkl/latest;${kit}/dnnl/latest")
           (cmakeBool "GGML_SYCL_F16" true)
-          (cmakeBool "GGML_SYCL_DNN" true)
           (cmakeBool "GGML_SYCL_SUPPORT_LEVEL_ZERO_API" true)
           (cmakeFeature "LEVEL_ZERO_INCLUDE_DIR" "${final.level-zero}/include")
           (cmakeFeature "ZE_LOADER_LIB" "${final.level-zero}/lib/libze_loader.so")
+          (cmakeBool "GMML_SYCL_ESIMD" true)
           # (cmakeFeature "GGML_SYCL_DEVICE_ARCH" "xe2")
         ];
 
@@ -80,28 +87,24 @@ in
           MKLROOT = "${kit}/mkl/latest";
         };
 
-        postInstall = builtins.replaceStrings [
-          "installShellCompletion --cmd llama-server --bash <($out/bin/llama-server --completion-bash)"
-        ] [ ": # shell completion skipped: SYCL llama-server aborts without a GPU" ] (old.postInstall or "");
+        postInstall =
+          builtins.replaceStrings
+            [
+              "installShellCompletion --cmd llama-server --bash <($out/bin/llama-server --completion-bash)"
+            ]
+            [ ": # shell completion skipped: SYCL llama-server aborts without a GPU" ]
+            (old.postInstall or "");
 
         postFixup = (old.postFixup or "") + ''
           for f in $out/bin/*; do
             [ -L "$f" ] && continue
             [ -f "$f" ] && [ -x "$f" ] || continue
             wrapProgram "$f" --prefix LD_LIBRARY_PATH : \
-              ${makeLibraryPath [ icrDriversFixed final.level-zero ]}
+              ${makeLibraryPath [
+                icrDriversFixed
+                final.level-zero
+              ]}
           done
         '';
       });
-
-  llama-cpp-sycl-dnn-only = final.llama-cpp-sycl.overrideAttrs (old: {
-    pname = "llama-cpp-sycl-dnn-only";
-    cmakeFlags = old.cmakeFlags ++ [ (cmakeBool "GGML_SYCL_F16" false) ];
-  });
-
-  llama-cpp-sycl-f16-only = final.llama-cpp-sycl.overrideAttrs (old: {
-    pname = "llama-cpp-sycl-f16-only";
-    cmakeFlags = old.cmakeFlags ++ [ (cmakeBool "GGML_SYCL_DNN" false) ];
-  });
 }
-

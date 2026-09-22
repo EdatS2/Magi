@@ -15,7 +15,6 @@ with pkgs.lib;
     (modulesPath + "/profiles/qemu-guest.nix")
     ./script.nix
     ./steam.nix
-    ./pythonServer.nix
     ./llm.nix
     ./keepalived.nix
   ];
@@ -81,7 +80,7 @@ with pkgs.lib;
         [ ]
     );
 
-  # boot.kernelPackages = pkgs.linuxPackages_7_1;
+  boot.kernelPackages = pkgs.linuxPackages_7_2;
 
   nix.settings.experimental-features = [
     "nix-command"
@@ -431,7 +430,6 @@ with pkgs.lib;
   };
   llm.enable = machines.${config.system.name}.intel;
   steam.enable = machines.${config.system.name}.nvidia;
-  pythonServer.enable = false;
   powerManagement.cpuFreqGovernor = "powersave";
   powerManagement.powertop.enable = true;
   hardware.nvidia-container-toolkit = {
@@ -443,6 +441,7 @@ with pkgs.lib;
         enable = true;
         extraPackages = with pkgs; [
             intel-compute-runtime
+            level-zero
         ];
   };
 
