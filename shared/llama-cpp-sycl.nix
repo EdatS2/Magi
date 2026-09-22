@@ -33,7 +33,7 @@ let
       { nativeBuildInputs = [ final.patchelf ]; }
       ''
         mkdir -p $out/lib
-        cp -a ${final.intel-compute-runtime.drivers}/lib/. $out/lib/
+        cp -a ${final.intel-compute-runtime}/lib/. $out/lib/
         chmod -R +w $out/lib
         find $out/lib -type f -name "*.so*" -exec \
           patchelf --add-rpath ${final.intel-graphics-compiler}/lib {} \;
