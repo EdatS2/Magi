@@ -43,6 +43,8 @@ repositories:
   url: https://nvidia.github.io/k8s-device-plugin
 - name: cnpg #cloudnative-pg
   url: https://cloudnative-pg.github.io/charts
+- name: intel
+  url: https://intel.github.io/helm-charts/
 
 releases:
   # load balancer
@@ -180,7 +182,7 @@ releases:
 - name: nextcloud
   namespace: applications
   chart: nextcloud/nextcloud
-  version: 9.0.3
+  version: 9.1.4
   values:
     - ./values/nextcloud.values.yaml
   secrets:
@@ -224,3 +226,13 @@ releases:
   chart: searxng/searxng
   values:
     - ./values/searxng.values.yaml
+
+- name: intel-device-manager
+  namespace: kube-system
+  chart: intel/intel-device-plugins-operator
+  version: 0.37.1
+
+- name: intel-gpu
+  namespace: kube-system
+  chart: intel/intel-device-plugins-gpu
+  version: 0.37.1

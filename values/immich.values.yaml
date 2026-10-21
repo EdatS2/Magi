@@ -110,20 +110,20 @@ machine-learning:
   controllers:
     main:
       pod:
-        runtimeClassName: 'nvidia'
+        runtimeClassName: 'intel'
       containers:
         main:
           image:
             repository: ghcr.io/immich-app/immich-machine-learning
-            tag: '{{ .Values.version }}-cuda'
+            tag: '{{ .Values.version }}-openvino'
             pullPolicy: IfNotPresent
           env:
             TRANSFORMERS_CACHE: /cache
           resources:
             limits:
-              nvidia.com/gpu: "1"
+              gpu.intel.com/i915: 1
       tolerations:
-        - key: nvidia.com/gpu
+        - key: gpu.intel.com/gpu
           operator: Exists
           effect: NoSchedule
 
