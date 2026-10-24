@@ -182,7 +182,7 @@ releases:
 - name: nextcloud
   namespace: applications
   chart: nextcloud/nextcloud
-  version: 9.1.4
+  version: 9.4.1
   values:
     - ./values/nextcloud.values.yaml
   secrets:

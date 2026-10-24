@@ -109,8 +109,8 @@ machine-learning:
   enabled: true
   controllers:
     main:
-      pod:
-        runtimeClassName: 'intel'
+      # pod:
+      #   runtimeClassName: 'intel'
       containers:
         main:
           image:
