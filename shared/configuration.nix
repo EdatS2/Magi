@@ -31,7 +31,7 @@ with pkgs.lib;
 
   ];
   boot.supportedFilesystems.zfs = machines.${config.system.name}.zfs;
-  networking.hostId = "38c2d6ec";
+  networking.hostId = machines.${config.system.name}.hostId;
   # boot.loader.efi.canTouchEfiVariables = true;
 
   environment.systemPackages =

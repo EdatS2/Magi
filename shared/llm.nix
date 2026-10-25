@@ -7,14 +7,14 @@
 }:
 let
   cfg = config.llm.enable;
-  # last updated on 28th of june 2026
+  # last updated on 18th of oktober 2026
   llama-cpp = pkgs.llama-cpp-sycl.overrideAttrs (oldAttrs: rec {
-    version = "11064";
+    version = "11719";
     src = pkgs.fetchFromGitHub {
       owner = "ggml-org";
       repo = "llama.cpp";
       tag = "b${version}";
-      hash = "sha256-Qsvu7HHKzbzXuu1eTZd3PEwIzwHsMs2vDLwSQXeQrwY=";
+      hash = "sha256-SPSVTlCg7zQ0ehmf5MqIJKT3nt6vZP0MvWBQ6Xy/Zxk=";
       # hash = "sha256-0000000000000000000000000000000000000000000=";
 
       leaveDotGit = true;
@@ -23,7 +23,7 @@ let
         find "$out" -name .git -print0 | xargs -0 rm -rf
       '';
     };
-    npmDepsHash = "sha256-2Q7XhaLAArmviOLdQsNbYTfdyDE5pW9lR26cRHEVl9k=";
+    npmDepsHash = "sha256-hqYzdp1FwPhYkBP278fQXgY9NCKB6Q3P6Gko7BfP0m0=";
     # npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
     # npmRoot = "tools/ui";
     # Enable native CPU optimizations (AVX, AVX2, etc.)
@@ -100,12 +100,16 @@ in
         "Qwen:27B": 
           env:    
             - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
+            - "ZES_ENABLE_SYSMAN=1"
+            - "ONEAPI_DEVICE_SELECTOR=level_zero:0"
+            - "GGML_SYCL_SPARSE_FA=1"
           cmd: | 
               ${llama-cpp}/bin/llama-server 
               -hf DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF:Q4_K_M 
               --port ''${PORT} 
-              --threads 18 --jinja --ctx-size 131072 -ngl 999 -ctk q8_0 --cache-type-v q8_0 -b 4096 -ub 2048 -fa 1 -lv 4 
+              --threads 18 --jinja --ctx-size 131072 -ngl 999 -ctk q8_0 -ctv q8_0 -b 4096 -ub 2048 -fa 1 -lv 4 
               --no-mmproj --split-mode none --main-gpu 0 -np 2 --dry-penalty-last-n 0.05 --spec-type draft-mtp --spec-draft-n-max 3 --kv-unified --reasoning-preserve --load-mode dio 
+              -cram 16384
           filters:
             setParamsByID:
                "Qwen:27B:high":
@@ -125,6 +129,9 @@ in
         "Muse": 
           env:    
             - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
+            - "ONEAPI_DEVICE_SELECTOR=level_zero:0;level_zero:1"
+            - "GGML_SYCL_SPARSE_FA=1"
+            - "ZES_ENABLE_SYSMAN=1"
           cmd: | 
             ${llama-cpp}/bin/llama-server 
             -hf unsloth/Muse-Glimmer-30B-GGUF:UD-Q4_K_XL
@@ -139,6 +146,7 @@ in
             --temp 1.0 --top-p 0.95 --top-k 64
             --dry-penalty-last-n 0.05 --load-mode dio
             --spec-default
+            -cram 16384
             # --spec-type draft-dflash --spec-draft-n-max 3
           filters:
             setParamsByID:
@@ -159,6 +167,7 @@ in
         "Goetia": 
           env:    
             - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
+            - "ZES_ENABLE_SYSMAN=1"
           cmd: | 
             ${llama-cpp}/bin/llama-server 
             -hf mradermacher/Goetia-26B-A4B-v1.6-i1-GGUF:Q4_K_M
@@ -177,6 +186,7 @@ in
         "Split": 
           env:    
             - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
+            - "ZES_ENABLE_SYSMAN=1"
           cmd: | 
             ${llama-cpp}/bin/llama-server 
             -hf mradermacher/Split-Untied-31B-i1-GGUF:Q4_K_S
@@ -191,9 +201,29 @@ in
             --temp 1.0 --top-p 0.95 --top-k 64
             --dry-penalty-last-n 0.05 --load-mode dio
             --spec-default
+            -cram 16384
 
-        #-hf DavidAU/Qwen3.6-27B-Fable-Fusion-711-Uncensored-Heretic-NM-DAU-NEO-MAX-MTP-GGUF:Q4_K_M
-        # --spec-draft-ngl all
+        "Nemotron:74B": 
+          env:    
+            - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
+            - "ONEAPI_DEVICE_SELECTOR=level_zero:0"
+            - "GGML_SYCL_SPARSE_FA=1"
+            - "ZES_ENABLE_SYSMAN=1"
+          cmd: | 
+            ${llama-cpp}/bin/llama-server 
+            -hf nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB-GGUF
+            --port ''${PORT}
+            --ctx-size 64000 
+            -ctk q8_0 -ctv q8_0
+            -b 4096 -ub 2048
+            -fa 1 -lv 4
+            --kv-unified
+            -np 2 
+            --load-mode dio
+            -cram 16384
+            -hfd nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB-LiLiCorr-GGUF
+            --spec-type draft-dflash
+            --spec-draft-n-max 6
 
       healthCheckTimeout: 600  # 10 minutes for large model download + loading
 

@@ -50,7 +50,7 @@ in
   llama-cpp-sycl =
     (prev.llama-cpp.override {
       stdenv = oneapiStdenv;
-      blasSupport = false;
+      blasSupport = true;
       cpuArchDynamicDispatch = false;
     }).overrideAttrs
       (old: {
@@ -80,8 +80,13 @@ in
           (cmakeFeature "LEVEL_ZERO_INCLUDE_DIR" "${final.level-zero}/include")
           (cmakeFeature "ZE_LOADER_LIB" "${final.level-zero}/lib/libze_loader.so")
           (cmakeBool "GMML_SYCL_ESIMD" true)
+          (cmakeBool "GMML_NATIVE" true)
           # (cmakeFeature "GGML_SYCL_DEVICE_ARCH" "xe2")
         ];
+        preConfigure = ''
+          export NIX_ENFORCE_NO_NATIVE=0
+          ${old.preConfigure or ""}
+        '';
 
         env = (old.env or { }) // {
           MKLROOT = "${kit}/mkl/latest";

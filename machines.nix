@@ -3,6 +3,7 @@ with builtins;
 with pkgs.lib;
 {
   balthazar = {
+    hostId = "000a6473";
     ip = "10.13.13.3";
     localIp = "192.168.88.130";
     interface = "eno1";
@@ -36,6 +37,7 @@ with pkgs.lib;
   #   zfs = false;
   # };
   ramiel = {
+    hostId = "6bd087f2";
     ip = "10.13.13.4";
     localIp = "192.168.88.102";
     interface = "eno1";
@@ -53,6 +55,7 @@ with pkgs.lib;
     intel = false;
   };
   melchior = {
+    hostId = "38c2d6ec";
     ip = "10.13.13.6";
     localIp = "192.168.88.129";
     interface = "enp8s0";
