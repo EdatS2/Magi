@@ -12,6 +12,8 @@ spec:
           - immich
         source: 
           externalCluster: pg1
+      postInitApplicationSQL:
+        - CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
 
   externalClusters:
     - name: pg1
@@ -24,9 +26,12 @@ spec:
         key: password
 
   instances: 3
-  imageName: ghcr.io/cloudnative-pg/postgresql:18.3-standard-trixie
+  imageName: ghcr.io/tensorchord/cloudnative-vectorchord:18
   storage:
     size: 2Gi
+  postgresql:
+    shared_preload_libraries: # load vchord shared library
+    - "vchord"
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor

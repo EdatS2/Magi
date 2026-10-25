@@ -144,9 +144,17 @@ nextcloud:
 
   phpConfigs:
     opcache-optimized.ini: |-
-      opcache.memory_consumption=512M
+      opcache.memory_consumption=512
       opcache.validate_timestamps=Off
       realpath_cache_size=16M
+    requests-optimized.ini: |-
+      pm = dynamic
+      pm.max_children = 30
+      pm.start_servers = 8
+      pm.min_spare_servers = 4
+      pm.max_spare_servers = 16
+      pm.max_requests = 500
+
   ## Default config files that utilize environment variables:
   # see: https://github.com/nextcloud/docker/tree/master#auto-configuration-via-environment-variables
   # IMPORTANT: Will be used only if you put extra configs, otherwise default will come from nextcloud itself
