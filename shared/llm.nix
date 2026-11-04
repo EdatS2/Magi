@@ -9,12 +9,12 @@ let
   cfg = config.llm.enable;
   # last updated on 18th of oktober 2026
   llama-cpp = pkgs.llama-cpp-sycl.overrideAttrs (oldAttrs: rec {
-    version = "11719";
+    version = "0.9.0";
     src = pkgs.fetchFromGitHub {
       owner = "ggml-org";
       repo = "llama.cpp";
-      tag = "b${version}";
-      hash = "sha256-SPSVTlCg7zQ0ehmf5MqIJKT3nt6vZP0MvWBQ6Xy/Zxk=";
+      tag = "v${version}";
+      hash = "sha256-2FHjR0XXT+THe/RBXC8CXsWQ0PRa7oDzucYwhSy3/UM=";
       # hash = "sha256-0000000000000000000000000000000000000000000=";
 
       leaveDotGit = true;
@@ -23,7 +23,7 @@ let
         find "$out" -name .git -print0 | xargs -0 rm -rf
       '';
     };
-    npmDepsHash = "sha256-hqYzdp1FwPhYkBP278fQXgY9NCKB6Q3P6Gko7BfP0m0=";
+    npmDepsHash = "sha256-XLtEZsSFdk+2SyfXzBp8HQ2e27PQPpDCn1YjePU1/9w=";
     # npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
     # npmRoot = "tools/ui";
     # Enable native CPU optimizations (AVX, AVX2, etc.)
@@ -107,9 +107,18 @@ in
               ${llama-cpp}/bin/llama-server 
               -hf DavidAU/Qwen3.8-27B-TURBO-Fable-Cold-Fusion-735-882-Heretic-Uncensored-NEO-CODER-MAX-MTP-GGUF:Q4_K_M 
               --port ''${PORT} 
-              --threads 18 --jinja --ctx-size 131072 -ngl 999 -ctk q8_0 -ctv q8_0 -b 4096 -ub 2048 -fa 1 -lv 4 
-              --no-mmproj --split-mode none --main-gpu 0 -np 2 --dry-penalty-last-n 0.05 --spec-type draft-mtp --spec-draft-n-max 3 --kv-unified --reasoning-preserve --load-mode dio 
+              --threads 18 --jinja --ctx-size 131072 -ngl 999 
+              -ctk q8_0 -ctv q8_0 
+              -b 4096 -ub 2048 
+              -fa 1 -lv 4 
+              --split-mode none 
+              -np 8
+              --main-gpu 0 
+              --dry-penalty-last-n 0.05 
+              --kv-unified --reasoning-preserve --load-mode dio 
               -cram 16384
+              --spec-type draft-mtp
+              --spec-draft-n-max 3
           filters:
             setParamsByID:
                "Qwen:27B:high":
@@ -138,61 +147,7 @@ in
             --port ''${PORT}
             --threads 18 --jinja 
             --ctx-size 131072 -ngl 999 
-            -b 4096 -ub 2048
-            -fa 1 -lv 4
-            --kv-unified
-            --split-mode none --main-gpu 0
-            -np 2 
-            --temp 1.0 --top-p 0.95 --top-k 64
-            --dry-penalty-last-n 0.05 --load-mode dio
-            --spec-default
-            -cram 16384
-            # --spec-type draft-dflash --spec-draft-n-max 3
-          filters:
-            setParamsByID:
-               "Muse:high":
-                   chat_template_kwargs:
-                     reasoning_effort: high
-               "Muse:xhigh":
-                   chat_template_kwargs:
-                       reasoning_effort: xhigh
-               "Muse":
-                   chat_template_kwargs:
-                      reasoning_effort: medium
-               "Muse:low":
-                   chat_template_kwargs:
-                      reasoning_effort: low
-
-        # ADDED 20-09-2026
-        "Goetia": 
-          env:    
-            - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
-            - "ZES_ENABLE_SYSMAN=1"
-          cmd: | 
-            ${llama-cpp}/bin/llama-server 
-            -hf mradermacher/Goetia-26B-A4B-v1.6-i1-GGUF:Q4_K_M
-            --port ''${PORT}
-            --threads 18 --jinja 
-            --ctx-size 131072 -ngl 999 
-            -b 4096 -ub 2048
-            -fa 1 -lv 4
-            --kv-unified
-            --split-mode none --main-gpu 0
-            -np 2 
-            --temp 1.0 --top-p 0.95 --top-k 64
-            --dry-penalty-last-n 0.05 --load-mode dio
-            --spec-default
-
-        "Split": 
-          env:    
-            - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
-            - "ZES_ENABLE_SYSMAN=1"
-          cmd: | 
-            ${llama-cpp}/bin/llama-server 
-            -hf mradermacher/Split-Untied-31B-i1-GGUF:Q4_K_S
-            --port ''${PORT}
-            --threads 18 --jinja 
-            --ctx-size 64000 -ngl 999 
+            -ctk q8_0 -ctv q8_0
             -b 4096 -ub 2048
             -fa 1 -lv 4
             --kv-unified
@@ -203,7 +158,7 @@ in
             --spec-default
             -cram 16384
 
-        "Nemotron:74B": 
+        "Flash": 
           env:    
             - "OCL_ICD_VENDORS=/run/opengl-driver/etc/OpenCL/vendors"
             - "ONEAPI_DEVICE_SELECTOR=level_zero:0"
@@ -211,19 +166,20 @@ in
             - "ZES_ENABLE_SYSMAN=1"
           cmd: | 
             ${llama-cpp}/bin/llama-server 
-            -hf nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB-GGUF
+            -hf SC117/Qwen3.8-Flash-Next-GSQ-RCO-abliterated-GGUF:Q2_0
             --port ''${PORT}
-            --ctx-size 64000 
-            -ctk q8_0 -ctv q8_0
-            -b 4096 -ub 2048
+            --ctx-size 128000 
+            --no-mmproj
+            -ctk q4_0 -ctv q4_0
+            -ctkd q4_0 -ctvd q4_0
             -fa 1 -lv 4
+            -b 4096 -ub 4096
             --kv-unified
-            -np 2 
-            --load-mode dio
-            -cram 16384
-            -hfd nvidia/NVIDIA-Nemotron-3.5-Bolt-74B-A9B-24GB-LiLiCorr-GGUF
-            --spec-type draft-dflash
-            --spec-draft-n-max 6
+            --moe-cache-mib 6000
+            --spec-default
+            -np 8
+            -lm mmap 
+            -lzm on
 
       healthCheckTimeout: 600  # 10 minutes for large model download + loading
 
