@@ -90,7 +90,7 @@ releases:
   version: 4.15.1
   values:
     - controller:
-        replicaCount: 2
+        replicaCount: 3 # one per node, like the main controller
         ingressClass: nginx
         ingressClassResource:
           enabled: false # the main release owns the IngressClass
