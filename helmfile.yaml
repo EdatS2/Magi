@@ -43,6 +43,10 @@ repositories:
   url: https://cloudnative-pg.github.io/charts
 - name: intel
   url: https://intel.github.io/helm-charts/
+- name: navidrome
+  url: oci.trueforge.org/truecharts
+  oci: true
+
 
 releases:
   # load balancer
@@ -75,7 +79,7 @@ releases:
     - name: controller.metrics.serviceMonitor.enabled
       value: true
     - name: controller.config.http2
-      value: true
+      value: false # CVE-2026-123633/123007, re-enable when a chart ships nginx >=1.30.7
 
   # certmanager
 - name: cert-manager
@@ -123,7 +127,7 @@ releases:
 - name: authentik
   namespace: auth
   chart: goauthentik/authentik
-  version: 2026.5.0
+  version: 2026.8.5
   values:
     - ./values/auth.values.yaml
   secrets:
@@ -157,7 +161,7 @@ releases:
 - name: immich
   namespace: applications
   chart: immich/immich
-  version: 0.13.0
+  version: 0.13.4
   values:
     - ./values/immich.values.yaml
   secrets:
@@ -227,3 +231,10 @@ releases:
   namespace: kube-system
   chart: intel/intel-device-plugins-gpu
   version: 0.37.1
+
+- name: navidrome
+  namespace: applications
+  chart: navidrome/navidrome
+  version: 24.0.4
+  values:
+    - ./values/navidrome.values.yaml

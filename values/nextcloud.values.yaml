@@ -143,11 +143,13 @@ nextcloud:
       enabled: false
 
   phpConfigs:
-    opcache-optimized.ini: |-
-      opcache.memory_consumption=512
+    zz-opcache-optimized.ini: |-
+      opcache.memory_consumption=2048
       opcache.validate_timestamps=Off
+      opcache.jit=1205
+      opcache.jit_buffer_size=16M
       realpath_cache_size=16M
-    requests-optimized.ini: |-
+    zz-requests-optimized.ini: |-
       pm = dynamic
       pm.max_children = 30
       pm.start_servers = 8

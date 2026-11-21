@@ -4,7 +4,7 @@
 
 # These entries are shared between all the Immich components
 
-version: v3.1.0
+version: v3.3.5
 
 controllers:
   main:
@@ -37,13 +37,21 @@ immich:
     trash:
       enabled: true
       days: 30
+    job:
+      thumbnailGeneration:
+        concurrency: 30
+      faceDetection:
+        concurrency: 10
+      ocr:
+        concurrency: 10
+      smartSearch:
+        concurrency: 10
     storageTemplate:
       enabled: true
       template: "{{y}}/{{y}}-{{MM}}-{{dd}}/{{filename}}"
     oauth:
       enabled: true
       scope: openid email profile
-      signing_algorithm: RS256
       storageLabelClaim: preferred_username
       defaultStorageQuota: 20
       autoLaunch: true
@@ -109,8 +117,12 @@ machine-learning:
   enabled: true
   controllers:
     main:
-      # pod:
-      #   runtimeClassName: 'intel'
+      replicas: 2
+      pod:
+        tolerations:
+        - key: gpu.intel.com/gpu
+          operator: Exists
+          effect: NoSchedule
       containers:
         main:
           image:
@@ -119,19 +131,12 @@ machine-learning:
             pullPolicy: IfNotPresent
           env:
             TRANSFORMERS_CACHE: /cache
+            MACHINE_LEARNING_MODEL_REVISION: v2
           resources:
             limits:
               gpu.intel.com/i915: 1
-      tolerations:
-        - key: gpu.intel.com/gpu
-          operator: Exists
-          effect: NoSchedule
 
   persistence:
     cache:
       enabled: false
-      size: 10Gi
-      # Optional: Set this to pvc to avoid downloading the ML models every start.
       type: emptyDir
-      accessMode: ReadWriteMany
-      # storageClass: your-class
