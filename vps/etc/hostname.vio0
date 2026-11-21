@@ -1,0 +1,6 @@
+inet autoconf
+inet6 2a03:6000:6e64:622::225 64
+inet6 alias 2a03:6000:6e64:622::100 128
+inet6 alias 2a03:6000:6e64:622::101 128
+inet6 alias 2a03:6000:6e64:622::102 128
+inet6 alias 2a03:6000:6e64:622::103 128

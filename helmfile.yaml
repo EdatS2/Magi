@@ -81,6 +81,38 @@ releases:
     - name: controller.config.http2
       value: false # CVE-2026-123633/123007, re-enable when a chart ships nginx >=1.30.7
 
+  # second controller for the VPS path only: same "nginx" class, but requires PROXY protocol
+  # so real client IPs survive haproxy. Cloudflare/LAN keep using 10.13.13.10.
+  # shortcut: two controllers until Cloudflare is gone, then fold PROXY into the main one.
+- name: nginx-ingress-vps
+  namespace: nginx-system
+  chart: ingress-nginx/ingress-nginx
+  version: 4.15.1
+  values:
+    - controller:
+        replicaCount: 2
+        ingressClass: nginx
+        ingressClassResource:
+          enabled: false # the main release owns the IngressClass
+        admissionWebhooks:
+          enabled: false # main release already validates
+        extraArgs:
+          update-status: "false" # don't fight the main controller over Ingress status
+        service:
+          loadBalancerIP: 10.13.13.12
+          externalTrafficPolicy: Local # keep haproxy (10.99.0.1) as the sender, no node hop
+        enableSnippets: true
+        allowSnippetAnnotations: true
+        config:
+          annotations-risk-level: critical
+          use-proxy-protocol: "true"
+          proxy-real-ip-cidr: 10.99.0.1/32 # only haproxy on the VPS may send PROXY headers
+          http2: "false" # same CVE as above
+        metrics:
+          enabled: true
+          serviceMonitor:
+            enabled: true
+
   # certmanager
 - name: cert-manager
   namespace: nginx-system

@@ -1,0 +1,6 @@
+# SNI hostname -> haproxy backend. One line per public service.
+# Hostnames not listed here are rejected by the frontend.
+headscale.salverdaserver.nl	be_headscale
+cloud.salverdaserver.nl		be_home
+immich.salverdaserver.nl	be_home
+music.salverdaserver.nl		be_home
